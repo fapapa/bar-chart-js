@@ -13,18 +13,27 @@ let graphDefaults = {
 };
 
 let barProperties = {
+  "display": "flex",
+  "align-items": "flex-start",
+  "justify-content": "center",
   "box-sizing": "border-box",
   "width": "50px",
   "background-color": "blue",
   "border": "1px solid black"
 };
 
+let valueProperties = {
+  "padding": "5px",
+  "color": "white",
+  "font-family": "Helvetica, Georgia, sans-serif"
+};
+
 const drawBarChart = function (data, options, element) {
   const max = Math.max.apply(Math, data);
   let graph = $("<div class='graph'></div>");
 
-  // Turn each data item into a percentage of the largest item in the set
-  data = data.map(function (datum) { return datum / max * 100; });
+  // Get each value's percentage of the max
+  data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
 
   // Apply some styling to the element that holds the graph
   let elementOptions = {};
@@ -40,9 +49,14 @@ const drawBarChart = function (data, options, element) {
   graph.css(Object.assign(graphDefaults, options));
 
   // Create and add each data item as a bar on the graph
-  data.forEach(function (value) {
+  data.forEach(function (datum) {
     let bar = $('<div class="chart-datum-bar"></div>');
-    bar.css(Object.assign(barProperties, {"height": value + "%"}));
+    let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
+
+    bar.css(Object.assign(barProperties, {"height": datum[1] + "%"}));
+    valueLabel.css(valueProperties);
+
+    bar.append(valueLabel);
     graph.append(bar);
   });
 
