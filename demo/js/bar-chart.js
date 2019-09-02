@@ -35,6 +35,20 @@ const drawBarChart = function (data, options, element) {
   // Get each value's percentage of the max
   data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
 
+  let barOptions = {};
+  switch (options.valueLabelPosition) {
+  case 'center':
+    barOptions["align-items"] = "center";
+    delete options.valueLabelPosition;
+    break;
+  case 'bottom':
+    barOptions["align-items"] = "flex-end";
+    delete options.valueLabelPosition;
+    break;
+  default:
+    delete options.valueLabelPosition;
+  }
+
   // Apply some styling to the element that holds the graph
   let elementOptions = {};
   [ "width", "height" ].forEach(function (prop) {
@@ -53,7 +67,8 @@ const drawBarChart = function (data, options, element) {
     let bar = $('<div class="chart-datum-bar"></div>');
     let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
 
-    bar.css(Object.assign(barProperties, {"height": datum[1] + "%"}));
+    bar.css(Object.assign(
+      barProperties, barOptions, {"height": datum[1] + "%"}));
     valueLabel.css(valueProperties);
 
     bar.append(valueLabel);
