@@ -17,7 +17,7 @@ let barProperties = {
   "align-items": "flex-start",
   "justify-content": "center",
   "box-sizing": "border-box",
-  "width": "50px",
+  "width": "100%",
   "background-color": "blue",
   "border": "1px solid black"
 };
