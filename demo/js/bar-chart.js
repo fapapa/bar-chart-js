@@ -28,14 +28,9 @@ let valueProperties = {
   "font-family": "Helvetica, Georgia, sans-serif"
 };
 
-const drawBarChart = function (data, options, element) {
-  const max = Math.max.apply(Math, data);
-  let graph = $("<div class='graph'></div>");
-
-  // Get each value's percentage of the max
-  data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
-
+let extractBarOptions = function (options) {
   let barOptions = {};
+
   switch (options.valueLabelPosition) {
   case 'center':
     barOptions["align-items"] = "center";
@@ -48,6 +43,18 @@ const drawBarChart = function (data, options, element) {
   default:
     delete options.valueLabelPosition;
   }
+
+  return barOptions;
+};
+
+const drawBarChart = function (data, options, element) {
+  const max = Math.max.apply(Math, data);
+  let graph = $("<div class='graph'></div>");
+
+  // Get each value's percentage of the max
+  data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
+
+  let barOptions = extractBarOptions(options);
 
   // Apply some styling to the element that holds the graph
   let elementOptions = {};
