@@ -44,6 +44,12 @@ let extractBarOptions = function (options) {
     delete options.valueLabelPosition;
   }
 
+  if (options.barSpacing) {
+    barOptions["margin-left"] = options.barSpacing;
+    graphDefaults["padding-right"] = options.barSpacing;
+    delete options.barSpacing;
+  }
+
   return barOptions;
 };
 
