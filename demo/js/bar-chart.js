@@ -139,6 +139,28 @@ let createYAxis = function (yAxis) {
   return title
 };
 
+let createLabels = function (labels, barOptions) {
+  let labelEl = $("<div class='x-axis-labels'></div>");
+
+  labels.forEach(function (label) {
+    labelEl.append($("<div>" + label + "</div>").css({
+      "flex": "1 1 " + 100 / labels.length + "%",
+      "padding-right": barOptions["margin-left"],
+      "font-size": "0.8em",
+      "text-align": "center"
+    }));
+  });
+
+  labelEl.css({
+    "grid-area": "labels",
+    "display": "flex",
+    "justify-content": "space-evenly",
+    "margin-left": barOptions["margin-left"]
+  });
+
+  return labelEl;
+};
+
 const drawBarChart = function (data, options, element) {
   let graph = $("<div class='graph'></div>");
   let xAxis, yAxis;
@@ -174,24 +196,7 @@ const drawBarChart = function (data, options, element) {
   // add the graph to the element specified
   element.append(graph);
 
-  if (labels) {
-    let labelEl = $("<div class='x-axis-labels'></div>");
-    labels.forEach(function (label) {
-      labelEl.append($("<div>" + label + "</div>").css({
-        "flex": "1 1 " + 100 / labels.length + "%",
-        "padding-right": barOptions["margin-left"],
-        "font-size": "0.8em",
-        "text-align": "center"
-      }));
-    });
-    labelEl.css({
-      "grid-area": "labels",
-      "display": "flex",
-      "justify-content": "space-evenly",
-      "margin-left": barOptions["margin-left"]
-    });
-    element.append(labelEl);
-  }
+  if (labels) { element.append(createLabels(labels, barOptions)); }
   if (xAxis) { element.append(createXAxis(xAxis)); }
   if (yAxis) { element.prepend(createYAxis(yAxis)); }
 };
