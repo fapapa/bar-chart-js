@@ -20,6 +20,8 @@ drawBarChart(data, options, element);
   %, em, etc.).
 * `valueLabelPosition`: one of "top" (default), "center", or "bottom",
   specifying the positioning of the value label for each bar on the bar chart.
+* `barSpacing`: a string specifying the space between (and around) the bars of
+  the chart. Must be a CSS unit (px, %, em, etc.).
 
 `element` is the html (or jQuery) element that you want the chart to be inserted
 into.
