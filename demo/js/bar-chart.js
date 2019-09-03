@@ -1,7 +1,7 @@
 let elementDefaults = {
   "display": "grid",
-  "grid-template-areas": "'y-axis graph'\n'empty x-axis'",
-  "grid-template-rows": "auto 1.375em",
+  "grid-template-areas": "'y-axis graph'\n'empty labels'\n'empty x-axis'",
+  "grid-template-rows": "auto 1.375em 1.375em",
   "grid-template-columns": "1.375em auto",
   "width": "500px",
   "height": "300px"
@@ -139,10 +139,41 @@ let createYAxis = function (yAxis) {
   return title
 };
 
+let createLabels = function (labels, barOptions) {
+  let labelEl = $("<div class='x-axis-labels'></div>");
+
+  labels.forEach(function (label) {
+    labelEl.append($("<div>" + label + "</div>").css({
+      "flex": "1 1 " + 100 / labels.length + "%",
+      "padding-right": barOptions["margin-left"],
+      "font-size": "0.8em",
+      "text-align": "center"
+    }));
+  });
+
+  labelEl.css({
+    "grid-area": "labels",
+    "display": "flex",
+    "justify-content": "space-evenly",
+    "margin-left": barOptions["margin-left"]
+  });
+
+  return labelEl;
+};
+
 const drawBarChart = function (data, options, element) {
-  const max = Math.max.apply(Math, data);
   let graph = $("<div class='graph'></div>");
   let xAxis, yAxis;
+  let labels;
+
+  if (!Array.isArray(data)) {
+    labels = [];
+    data = Object.keys(data).map(function (label, idx) {
+      labels.push(label);
+      return data[label];
+    });
+  }
+  const max = Math.max.apply(Math, data);
 
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
@@ -165,6 +196,7 @@ const drawBarChart = function (data, options, element) {
   // add the graph to the element specified
   element.append(graph);
 
+  if (labels) { element.append(createLabels(labels, barOptions)); }
   if (xAxis) { element.append(createXAxis(xAxis)); }
   if (yAxis) { element.prepend(createYAxis(yAxis)); }
 };
