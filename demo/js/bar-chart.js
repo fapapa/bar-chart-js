@@ -50,6 +50,11 @@ let extractBarOptions = function (options) {
     delete options.barSpacing;
   }
 
+  if (options.barColor) {
+    barOptions["background-color"] = options.barColor;
+    delete options.barColor;
+  }
+
   return barOptions;
 };
 
