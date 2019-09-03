@@ -66,6 +66,12 @@ let extractBarOptions = function (options) {
 const drawBarChart = function (data, options, element) {
   const max = Math.max.apply(Math, data);
   let graph = $("<div class='graph'></div>");
+  let xAxis;
+
+  if (options.xAxisName) {
+    xAxis = options.xAxisName;
+    delete options.xAxisName
+  }
 
   // Get each value's percentage of the max
   data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
@@ -100,4 +106,10 @@ const drawBarChart = function (data, options, element) {
 
   // add the graph to the element specified
   element.append(graph);
+
+  if (xAxis) {
+    let title = $("<div class='x-axis'>" + xAxis + "</div>");
+    title.css({"text-align": "center"});
+    element.append(title);
+  }
 };
