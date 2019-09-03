@@ -1,8 +1,8 @@
 let elementDefaults = {
   "display": "grid",
   "grid-template-areas": "'y-axis graph'\n'empty labels'\n'empty x-axis'",
-  "grid-template-rows": "auto 1.375em 1.375em",
-  "grid-template-columns": "1.375em auto",
+  "grid-template-rows": "auto 0 0",
+  "grid-template-columns": "0 auto",
   "width": "500px",
   "height": "300px"
 };
