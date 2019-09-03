@@ -68,20 +68,84 @@ let extractBarOptions = function (options) {
   return barOptions;
 };
 
-const drawBarChart = function (data, options, element) {
-  const max = Math.max.apply(Math, data);
-  let graph = $("<div class='graph'></div>");
-  let xAxis, yAxis;
+let extractXAxis = function (options) {
+  let xAxis;
 
   if (options.xAxisName) {
     xAxis = options.xAxisName;
-    delete options.xAxisName
+    delete options.xAxisName;
   }
+
+  return xAxis;
+};
+
+let extractYAxis = function (options) {
+  let yAxis;
 
   if (options.yAxisName) {
     yAxis = options.yAxisName;
     delete options.yAxisName;
   }
+
+  return yAxis;
+};
+
+let extractElementProperties = function (options) {
+  let elementOptions;
+
+  [ "width", "height" ].forEach(function (prop) {
+    if (options[prop]) {
+      elementOptions[prop] = options[prop];
+      delete options[prop];
+    }
+  });
+
+  return elementOptions;
+};
+
+let createBar = function (datum, options, graph) {
+  let bar = $('<div class="chart-datum-bar"></div>');
+  let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
+
+  bar.css(Object.assign(
+    barProperties, options, {"height": datum[1] + "%"}));
+  valueLabel.css(valueProperties);
+
+  bar.append(valueLabel);
+  graph.append(bar);
+};
+
+let createXAxis = function (xAxis) {
+  let title = $("<div class='x-axis'>" + xAxis + "</div>");
+
+  title.css({
+    "grid-area": "x-axis",
+    "text-align": "center"
+  });
+
+  return title;
+};
+
+let createYAxis = function (yAxis) {
+  let title = $("<div class='y-axis'>" + yAxis + "</div>");
+
+  title.css({
+    "grid-area": "y-axis",
+    "writing-mode": "vertical-rl",
+    "transform": "rotate(180deg)",
+    "text-align": "center"
+  })
+
+  return title
+};
+
+const drawBarChart = function (data, options, element) {
+  const max = Math.max.apply(Math, data);
+  let graph = $("<div class='graph'></div>");
+  let xAxis, yAxis;
+
+  xAxis = extractXAxis(options);
+  yAxis = extractYAxis(options);
 
   // Get each value's percentage of the max
   data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
@@ -89,51 +153,18 @@ const drawBarChart = function (data, options, element) {
   let barOptions = extractBarOptions(options);
 
   // Apply some styling to the element that holds the graph
-  let elementOptions = {};
-  [ "width", "height" ].forEach(function (prop) {
-    if (options[prop]) {
-      elementOptions[prop] = options[prop];
-      delete options[prop];
-    }
-  });
+  let elementOptions = extractElementProperties(options);
   element.css(Object.assign(elementDefaults, elementOptions));
 
   // Apply styling to the graph itself
   graph.css(Object.assign(graphDefaults, options));
 
   // Create and add each data item as a bar on the graph
-  data.forEach(function (datum) {
-    let bar = $('<div class="chart-datum-bar"></div>');
-    let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
-
-    bar.css(Object.assign(
-      barProperties, barOptions, {"height": datum[1] + "%"}));
-    valueLabel.css(valueProperties);
-
-    bar.append(valueLabel);
-    graph.append(bar);
-  });
+  data.forEach(function (datum) { createBar(datum, barOptions, graph); });
 
   // add the graph to the element specified
   element.append(graph);
 
-  if (xAxis) {
-    let title = $("<div class='x-axis'>" + xAxis + "</div>");
-    title.css({
-      "grid-area": "x-axis",
-      "text-align": "center"
-    });
-    element.append(title);
-  }
-
-  if (yAxis) {
-    let title = $("<div class='y-axis'>" + yAxis + "</div>");
-    title.css({
-      "grid-area": "y-axis",
-      "writing-mode": "vertical-rl",
-      "transform": "rotate(180deg)",
-      "text-align": "center"
-    })
-    element.prepend(title);
-  }
+  if (xAxis) { element.append(createXAxis(xAxis)); }
+  if (yAxis) { element.prepend(createYAxis(yAxis)); }
 };
