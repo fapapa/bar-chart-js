@@ -1,10 +1,15 @@
 let elementDefaults = {
+  "display": "grid",
+  "grid-template-areas": "'y-axis graph'\n'empty x-axis'",
+  "grid-template-rows": "auto 1.375em",
+  "grid-template-columns": "1.375em auto",
   "width": "500px",
   "height": "300px"
 };
 
 let graphDefaults = {
   "display": "flex",
+  "grid-area": "graph",
   "justify-content": "space-evenly",
   "align-items": "flex-end",
   "height": "100%",
@@ -66,11 +71,16 @@ let extractBarOptions = function (options) {
 const drawBarChart = function (data, options, element) {
   const max = Math.max.apply(Math, data);
   let graph = $("<div class='graph'></div>");
-  let xAxis;
+  let xAxis, yAxis;
 
   if (options.xAxisName) {
     xAxis = options.xAxisName;
     delete options.xAxisName
+  }
+
+  if (options.yAxisName) {
+    yAxis = options.yAxisName;
+    delete options.yAxisName;
   }
 
   // Get each value's percentage of the max
@@ -109,7 +119,21 @@ const drawBarChart = function (data, options, element) {
 
   if (xAxis) {
     let title = $("<div class='x-axis'>" + xAxis + "</div>");
-    title.css({"text-align": "center"});
+    title.css({
+      "grid-area": "x-axis",
+      "text-align": "center"
+    });
     element.append(title);
+  }
+
+  if (yAxis) {
+    let title = $("<div class='y-axis'>" + yAxis + "</div>");
+    title.css({
+      "grid-area": "y-axis",
+      "writing-mode": "vertical-rl",
+      "transform": "rotate(180deg)",
+      "text-align": "center"
+    })
+    element.prepend(title);
   }
 };
