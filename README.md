@@ -10,7 +10,8 @@ Full-Stack Web Developer program.
 drawBarChart(data, options, element);
 ```
 
-`data` is an array of values to chart.
+`data` can be either an array of values to chart, or an object literal with
+labels as keys, and values to chart. With the latter, each bar is labeled.
 
 `options` is a javascript literal that can contain the following properties:
 
