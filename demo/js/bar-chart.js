@@ -1,7 +1,7 @@
 let elementDefaults = {
   "display": "grid",
-  "grid-template-areas": "'y-axis graph'\n'empty x-axis'",
-  "grid-template-rows": "auto 1.375em",
+  "grid-template-areas": "'y-axis graph'\n'empty labels'\n'empty x-axis'",
+  "grid-template-rows": "auto 1.375em 1.375em",
   "grid-template-columns": "1.375em auto",
   "width": "500px",
   "height": "300px"
