@@ -140,9 +140,16 @@ let createYAxis = function (yAxis) {
 };
 
 const drawBarChart = function (data, options, element) {
-  const max = Math.max.apply(Math, data);
   let graph = $("<div class='graph'></div>");
   let xAxis, yAxis;
+  let labels;
+
+  if (!Array.isArray(data)) {
+    data = Object.keys(data).map(function (label, idx) {
+      return data[label];
+    });
+  }
+  const max = Math.max.apply(Math, data);
 
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
