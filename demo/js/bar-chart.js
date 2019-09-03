@@ -55,6 +55,11 @@ let extractBarOptions = function (options) {
     delete options.barColor;
   }
 
+  if (options.valueLabelColor) {
+    valueProperties["color"] = options.valueLabelColor;
+    delete options.valueLabelColor;
+  }
+
   return barOptions;
 };
 
