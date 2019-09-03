@@ -145,7 +145,9 @@ const drawBarChart = function (data, options, element) {
   let labels;
 
   if (!Array.isArray(data)) {
+    labels = [];
     data = Object.keys(data).map(function (label, idx) {
+      labels.push(label);
       return data[label];
     });
   }
