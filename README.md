@@ -18,8 +18,16 @@ drawBarChart(data, options, element);
   %, em, etc.).
 * `height`: a string specifying the height of the chart. Must be a CSS unit (px,
   %, em, etc.).
+* `xAxisName`: a string specifying the name of the x-axis to display on the
+  chart.
+* `yAxisName`: a string specifying the name of the y-axis to display on the
+  chart.
 * `valueLabelPosition`: one of "top" (default), "center", or "bottom",
   specifying the positioning of the value label for each bar on the bar chart.
+* `valueLabelColor`: a string specifying the color of the value label on each
+  bar. Must be any valid CSS color (named color, hex value, etc.).
+* `barColor`: a string specifying the color of the bars on the chart. Must be
+  any valid CSS color (named color, hex value, etc.).
 * `barSpacing`: a string specifying the space between (and around) the bars of
   the chart. Must be a CSS unit (px, %, em, etc.).
 
