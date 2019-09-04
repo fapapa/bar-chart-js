@@ -1,8 +1,8 @@
 let elementDefaults = {
   "display": "grid",
   "grid-template-areas": "'y-axis graph'\n'empty labels'\n'empty x-axis'",
-  "grid-template-rows": "auto 1.375em 1.375em",
-  "grid-template-columns": "1.375em auto",
+  "grid-template-rows": "auto 0 0",
+  "grid-template-columns": "0 auto",
   "width": "500px",
   "height": "300px"
 };
@@ -161,6 +161,27 @@ let createLabels = function (labels, barOptions) {
   return labelEl;
 };
 
+let showLabelArea = function (element) {
+  let gridRowHeights = element.css('grid-template-rows').split(' ');
+  gridRowHeights[0] = "auto"; // gets read in as the actual px size???
+  gridRowHeights[1] = "1.375em";
+  element.css('grid-template-rows', gridRowHeights.join(' '));
+};
+
+let showXAxisArea = function (element) {
+  let gridRowHeights = element.css('grid-template-rows').split(' ');
+  gridRowHeights[0] = "auto";
+  gridRowHeights[2] = "1.375em";
+  element.css('grid-template-rows', gridRowHeights.join(' '));
+};
+
+let showYAxisArea = function (element) {
+  let gridColumnWidths = element.css('grid-template-columns').split(' ');
+  gridColumnWidths[0] = "1.375em";
+  gridColumnWidths[1] = "auto";
+  element.css('grid-template-columns', gridColumnWidths.join(' '));
+};
+
 const drawBarChart = function (data, options, element) {
   let graph = $("<div class='graph'></div>");
   let xAxis, yAxis;
@@ -196,7 +217,16 @@ const drawBarChart = function (data, options, element) {
   // add the graph to the element specified
   element.append(graph);
 
-  if (labels) { element.append(createLabels(labels, barOptions)); }
-  if (xAxis) { element.append(createXAxis(xAxis)); }
-  if (yAxis) { element.prepend(createYAxis(yAxis)); }
+  if (labels) {
+    showLabelArea(element);
+    element.append(createLabels(labels, barOptions));
+  }
+  if (xAxis) {
+    showXAxisArea(element);
+    element.append(createXAxis(xAxis));
+  }
+  if (yAxis) {
+    showYAxisArea(element);
+    element.prepend(createYAxis(yAxis));
+  }
 };
