@@ -267,6 +267,21 @@ const drawGraph = function (data, scale, options, barOptions) {
   return graph;
 };
 
+const drawYAxisElements = function (yAxis, scale, tickInterval) {
+  let name;
+  const intervalHeight = tickInterval / scale * 100;
+
+  if (yAxis) {
+    showYAxisArea(element);
+    name = createYAxis(yAxis);
+  }
+
+  const ticks = generateTicks(intervalHeight, scale, tickInterval);
+  const tickValues = generateTickValues(intervalHeight, scale, tickInterval);
+
+  return [name, tickValues, ticks];
+};
+
 const drawBarChart = function (data, options, element) {
   // Get the data into an array and collect labels if an object was passed in
   let labels;
@@ -291,13 +306,7 @@ const drawBarChart = function (data, options, element) {
   element.append(drawGraph(data, scale, options, barOptions));
 
   // Draw the y-axis elements
-  const intervalHeight = tickInterval / scale * 100;
-  element.append(generateTicks(intervalHeight, scale, tickInterval));
-  element.append(generateTickValues(intervalHeight, scale, tickInterval));
-  if (yAxis) {
-    showYAxisArea(element);
-    element.prepend(createYAxis(yAxis));
-  }
+  element.append(drawYAxisElements(yAxis, scale, tickInterval));
 
   // Draw the x-axis elements
   if (labels) {
