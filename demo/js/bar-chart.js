@@ -234,6 +234,18 @@ const drawBarChart = function (data, options, element) {
   });
   element.append(tickContainer);
 
+  let widestTickVal = $("<span id='del'>" + scale.toLocaleString() + "</span>");
+  widestTickVal.css({
+    "visibility": "none",
+    "font-size": "0.8em"
+  });
+  element.append(widestTickVal);
+  let tickColWidth = $("#del", element).width() + 5;
+  $("#del").remove();
+  let gridColumnWidths = elementDefaults["grid-template-columns"].split(' ');
+  gridColumnWidths[1] = tickColWidth + "px";
+  elementDefaults["grid-template-columns"] = gridColumnWidths.join(' ');
+
   let tickValueContainer = $("<div class='tick-values'></div>");
   for (let i = tickInterval; i <= scale; i += tickInterval) {
     let tickValue = $("<div>" + i + "</div>");
