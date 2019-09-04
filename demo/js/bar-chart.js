@@ -180,6 +180,13 @@ let showYAxisArea = function () {
   elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
+let hideTickArea = function () {
+  let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
+  gridColumnWidths[1] = 0;
+  gridColumnWidths[2] = 0;
+  elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
+};
+
 let bestTick = function (maxValue, mostTicks) {
   let tick;
   const minInterval = maxValue / mostTicks;
@@ -267,8 +274,9 @@ const drawGraph = function (data, scale, options, barOptions) {
   return graph;
 };
 
-const drawYAxisElements = function (yAxis, scale, tickInterval) {
+const drawYAxisElements = function (yAxis, scale, tickInterval, options) {
   let name;
+  let ticks, tickValues;
   const intervalHeight = tickInterval / scale * 100;
 
   if (yAxis) {
@@ -276,8 +284,13 @@ const drawYAxisElements = function (yAxis, scale, tickInterval) {
     name = createYAxis(yAxis);
   }
 
-  const ticks = generateTicks(intervalHeight, scale, tickInterval);
-  const tickValues = generateTickValues(intervalHeight, scale, tickInterval);
+  options = Object.assign({showTicks: true}, options)
+  if (options.showTicks) {
+    ticks = generateTicks(intervalHeight, scale, tickInterval);
+    tickValues = generateTickValues(intervalHeight, scale, tickInterval);
+  } else {
+    hideTickArea();
+  }
 
   return [name, tickValues, ticks];
 };
@@ -321,7 +334,7 @@ const drawBarChart = function (data, options, element) {
   // add the graph to the element specified
   let barOptions = extractBarOptions(options);
   element.append(drawGraph(data, scale, options, barOptions));
-  element.append(drawYAxisElements(yAxis, scale, tickInterval));
+  element.append(drawYAxisElements(yAxis, scale, tickInterval, options));
   element.append(drawXAxisElements(xAxis, labels, barOptions));
 
   // Apply some styling to the element that holds the graph
