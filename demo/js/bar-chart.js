@@ -2,7 +2,7 @@ let elementDefaults = {
   "display": "grid",
   "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
   "grid-template-rows": "auto 0 0",
-  "grid-template-columns": "0 auto 5px auto",
+  "grid-template-columns": "0 20px 5px auto",
   "width": "500px",
   "height": "300px"
 };
