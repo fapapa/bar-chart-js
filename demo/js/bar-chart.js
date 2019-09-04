@@ -103,7 +103,7 @@ let extractElementProperties = function (options) {
   return elementOptions;
 };
 
-let createBar = function (datum, options, graph) {
+let drawBar = function (datum, options) {
   let bar = $('<div class="chart-datum-bar"></div>');
   let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
 
@@ -112,7 +112,8 @@ let createBar = function (datum, options, graph) {
   valueLabel.css(valueProperties);
 
   bar.append(valueLabel);
-  graph.append(bar);
+
+  return bar;
 };
 
 let createXAxis = function (xAxis) {
@@ -258,7 +259,7 @@ const drawGraph = function (data, scale, options, barOptions) {
   data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
 
   // Create and add each data item as a bar on the graph
-  data.forEach(function (datum) { createBar(datum, barOptions, graph); });
+  data.forEach(function (datum) { graph.append(drawBar(datum, barOptions)); });
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
@@ -288,8 +289,6 @@ const drawBarChart = function (data, options, element) {
   // add the graph to the element specified
   let barOptions = extractBarOptions(options);
   element.append(drawGraph(data, scale, options, barOptions));
-
-
 
   // Draw the y-axis elements
   const intervalHeight = tickInterval / scale * 100;
