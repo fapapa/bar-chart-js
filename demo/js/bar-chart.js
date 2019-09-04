@@ -162,24 +162,21 @@ let createLabels = function (labels, barOptions) {
 };
 
 let showLabelArea = function (element) {
-  let gridRowHeights = element.css('grid-template-rows').split(' ');
-  gridRowHeights[0] = "auto"; // gets read in as the actual px size???
+  let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
   gridRowHeights[1] = "1.375em";
-  element.css('grid-template-rows', gridRowHeights.join(' '));
+  elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
 let showXAxisArea = function (element) {
-  let gridRowHeights = element.css('grid-template-rows').split(' ');
-  gridRowHeights[0] = "auto";
+  let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
   gridRowHeights[2] = "1.375em";
-  element.css('grid-template-rows', gridRowHeights.join(' '));
+  elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
 let showYAxisArea = function (element) {
-  let gridColumnWidths = element.css('grid-template-columns').split(' ');
+  let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[0] = "1.375em";
-  gridColumnWidths[3] = "auto";
-  element.css('grid-template-columns', gridColumnWidths.join(' '));
+  elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
 let bestTick = function (maxValue, mostTicks) {
@@ -255,45 +252,54 @@ const generateTickValues = function (intervalHeight, scale, tickInterval) {
 };
 
 const drawBarChart = function (data, options, element) {
-  let graph = $("<div class='graph'></div>");
-  let xAxis, yAxis;
-  let labels;
-
   // Get the data into an array and collect labels if an object was passed in
+  let labels;
   if (!Array.isArray(data)) {
     labels = Object.keys(data);
     data = Object.values(data);
   }
 
+
+
+  // Determine scale
   const max = Math.max.apply(Math, data);
   const tickInterval = bestTick(max, 8);
   const scale = Math.ceil(max / tickInterval) * tickInterval;
-  const intervalHeight = tickInterval / scale * 100;
 
-  element.append(generateTicks(intervalHeight, scale, tickInterval));
-  element.append(generateTickValues(intervalHeight, scale, tickInterval));
 
+
+  // Extract options
+  let elementOptions = extractElementProperties(options);
+  let xAxis, yAxis;
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
 
+
+
+  // Draw the graph
+  let graph = $("<div class='graph'></div>");
+  let barOptions = extractBarOptions(options);
   // Get each value's percentage of the scale
   data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
-
-  let barOptions = extractBarOptions(options);
-
-  // Apply some styling to the element that holds the graph
-  let elementOptions = extractElementProperties(options);
-  element.css(Object.assign(elementDefaults, elementOptions));
-
-  // Apply styling to the graph itself
+  // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
-
   // Create and add each data item as a bar on the graph
   data.forEach(function (datum) { createBar(datum, barOptions, graph); });
-
   // add the graph to the element specified
   element.append(graph);
 
+
+
+  // Draw the y-axis elements
+  const intervalHeight = tickInterval / scale * 100;
+  element.append(generateTicks(intervalHeight, scale, tickInterval));
+  element.append(generateTickValues(intervalHeight, scale, tickInterval));
+  if (yAxis) {
+    showYAxisArea(element);
+    element.prepend(createYAxis(yAxis));
+  }
+
+  // Draw the x-axis elements
   if (labels) {
     showLabelArea(element);
     element.append(createLabels(labels, barOptions));
@@ -302,8 +308,9 @@ const drawBarChart = function (data, options, element) {
     showXAxisArea(element);
     element.append(createXAxis(xAxis));
   }
-  if (yAxis) {
-    showYAxisArea(element);
-    element.prepend(createYAxis(yAxis));
-  }
+
+
+
+  // Apply some styling to the element that holds the graph
+  element.css(Object.assign(elementDefaults, elementOptions));
 };
