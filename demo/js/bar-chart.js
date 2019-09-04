@@ -234,6 +234,24 @@ const drawBarChart = function (data, options, element) {
   });
   element.append(tickContainer);
 
+  let tickValueContainer = $("<div class='tick-values'></div>");
+  for (let i = tickInterval; i <= scale; i += tickInterval) {
+    let tickValue = $("<div>" + i + "</div>");
+    tickValue.css({
+      "height": intervalHeight * 100 + "%",
+      "margin-top": "-0.5em",
+      "margin-bottom": "0.5em",
+      "padding-right": "5px",
+      "font-size": "0.8em",
+      "text-align": "right"
+    });
+    tickValueContainer.prepend(tickValue);
+  }
+  tickValueContainer.css({
+    "grid-area": "tick-values"
+  });
+  element.append(tickValueContainer);
+
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
 
