@@ -248,7 +248,7 @@ const drawBarChart = function (data, options, element) {
 
   let tickValueContainer = $("<div class='tick-values'></div>");
   for (let i = tickInterval; i <= scale; i += tickInterval) {
-    let tickValue = $("<div>" + i + "</div>");
+    let tickValue = $("<div>" + i.toLocaleString() + "</div>");
     tickValue.css({
       "height": intervalHeight * 100 + "%",
       "margin-top": "-0.5em",
