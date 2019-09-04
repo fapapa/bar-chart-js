@@ -2,7 +2,7 @@ let elementDefaults = {
   "display": "grid",
   "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
   "grid-template-rows": "auto 0 0",
-  "grid-template-columns": "0 0 0 auto",
+  "grid-template-columns": "0 auto 5px auto",
   "width": "500px",
   "height": "300px"
 };
@@ -182,6 +182,25 @@ let showYAxisArea = function (element) {
   element.css('grid-template-columns', gridColumnWidths.join(' '));
 };
 
+let bestTick = function (maxValue, mostTicks) {
+  let tick;
+  const minInterval = maxValue / mostTicks;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(minInterval)));
+  const residual = minInterval / magnitude;
+
+  if (residual > 5) {
+    tick = 10 * magnitude;
+  } else if (residual > 2) {
+    tick = 5 * magnitude;
+  } else if (residual > 1) {
+    tick = 2 * magnitude;
+  } else {
+    tick = magnitude;
+  }
+
+  return tick;
+};
+
 const drawBarChart = function (data, options, element) {
   let graph = $("<div class='graph'></div>");
   let xAxis, yAxis;
@@ -196,11 +215,14 @@ const drawBarChart = function (data, options, element) {
   }
   const max = Math.max.apply(Math, data);
 
+  const tickInterval = bestTick(max, 8);
+  const scale = Math.ceil(max / tickInterval) * tickInterval;
+
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
 
-  // Get each value's percentage of the max
-  data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
+  // Get each value's percentage of the scale
+  data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
 
   let barOptions = extractBarOptions(options);
 
