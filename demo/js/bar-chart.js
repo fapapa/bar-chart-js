@@ -1,8 +1,8 @@
 let elementDefaults = {
   "display": "grid",
-  "grid-template-areas": "'y-axis graph'\n'empty labels'\n'empty x-axis'",
+  "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
   "grid-template-rows": "auto 0 0",
-  "grid-template-columns": "0 auto",
+  "grid-template-columns": "0 0 0 auto",
   "width": "500px",
   "height": "300px"
 };
@@ -178,7 +178,7 @@ let showXAxisArea = function (element) {
 let showYAxisArea = function (element) {
   let gridColumnWidths = element.css('grid-template-columns').split(' ');
   gridColumnWidths[0] = "1.375em";
-  gridColumnWidths[1] = "auto";
+  gridColumnWidths[3] = "auto";
   element.css('grid-template-columns', gridColumnWidths.join(' '));
 };
 
