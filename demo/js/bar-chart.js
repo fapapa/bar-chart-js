@@ -217,6 +217,22 @@ const drawBarChart = function (data, options, element) {
 
   const tickInterval = bestTick(max, 8);
   const scale = Math.ceil(max / tickInterval) * tickInterval;
+  const intervalHeight = tickInterval / scale;
+  const ticks = scale / tickInterval;
+  let tickContainer = $("<div class='ticks'></div>");
+  for (let i = 0; i < ticks; i++) {
+    let intervalEl = $("<div></div>");
+    intervalEl.css({
+      "box-sizing": "border-box",
+      "border-top": "1px solid black",
+      "height": intervalHeight * 100 + "%"
+    });
+    tickContainer.append(intervalEl);
+  }
+  tickContainer.css({
+    "grid-area": "tick-marks"
+  });
+  element.append(tickContainer);
 
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
