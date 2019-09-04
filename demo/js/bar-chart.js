@@ -161,6 +161,27 @@ let createLabels = function (labels, barOptions) {
   return labelEl;
 };
 
+let showLabelArea = function (element) {
+  let gridRowHeights = element.css('grid-template-rows').split(' ');
+  gridRowHeights[0] = "auto"; // gets read in as the actual px size???
+  gridRowHeights[1] = "1.375em";
+  element.css('grid-template-rows', gridRowHeights.join(' '));
+};
+
+let showXAxisArea = function (element) {
+  let gridRowHeights = element.css('grid-template-rows').split(' ');
+  gridRowHeights[0] = "auto";
+  gridRowHeights[2] = "1.375em";
+  element.css('grid-template-rows', gridRowHeights.join(' '));
+};
+
+let showYAxisArea = function (element) {
+  let gridColumnWidths = element.css('grid-template-columns').split(' ');
+  gridColumnWidths[0] = "1.375em";
+  gridColumnWidths[1] = "auto";
+  element.css('grid-template-columns', gridColumnWidths.join(' '));
+};
+
 const drawBarChart = function (data, options, element) {
   let graph = $("<div class='graph'></div>");
   let xAxis, yAxis;
@@ -197,24 +218,15 @@ const drawBarChart = function (data, options, element) {
   element.append(graph);
 
   if (labels) {
-    let gridRowHeights = element.css('grid-template-rows').split(' ');
-    gridRowHeights[0] = "auto"; // gets read in as the actual px size???
-    gridRowHeights[1] = "1.375em";
-    element.css('grid-template-rows', gridRowHeights.join(' '));
+    showLabelArea(element);
     element.append(createLabels(labels, barOptions));
   }
   if (xAxis) {
-    let gridRowHeights = element.css('grid-template-rows').split(' ');
-    gridRowHeights[0] = "auto";
-    gridRowHeights[2] = "1.375em";
-    element.css('grid-template-rows', gridRowHeights.join(' '));
+    showXAxisArea(element);
     element.append(createXAxis(xAxis));
   }
   if (yAxis) {
-    let gridColumnWidths = element.css('grid-template-columns').split(' ');
-    gridColumnWidths[0] = "1.375em";
-    gridColumnWidths[1] = "auto";
-    element.css('grid-template-columns', gridColumnWidths.join(' '));
+    showYAxisArea(element);
     element.prepend(createYAxis(yAxis));
   }
 };
