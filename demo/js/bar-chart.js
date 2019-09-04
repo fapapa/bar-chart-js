@@ -1,8 +1,8 @@
 let elementDefaults = {
   "display": "grid",
-  "grid-template-areas": "'y-axis graph'\n'empty labels'\n'empty x-axis'",
+  "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
   "grid-template-rows": "auto 0 0",
-  "grid-template-columns": "0 auto",
+  "grid-template-columns": "0 20px 5px auto",
   "width": "500px",
   "height": "300px"
 };
@@ -103,7 +103,7 @@ let extractElementProperties = function (options) {
   return elementOptions;
 };
 
-let createBar = function (datum, options, graph) {
+let drawBar = function (datum, options) {
   let bar = $('<div class="chart-datum-bar"></div>');
   let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
 
@@ -112,7 +112,8 @@ let createBar = function (datum, options, graph) {
   valueLabel.css(valueProperties);
 
   bar.append(valueLabel);
-  graph.append(bar);
+
+  return bar;
 };
 
 let createXAxis = function (xAxis) {
@@ -161,72 +162,181 @@ let createLabels = function (labels, barOptions) {
   return labelEl;
 };
 
-let showLabelArea = function (element) {
-  let gridRowHeights = element.css('grid-template-rows').split(' ');
-  gridRowHeights[0] = "auto"; // gets read in as the actual px size???
+let showLabelArea = function () {
+  let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
   gridRowHeights[1] = "1.375em";
-  element.css('grid-template-rows', gridRowHeights.join(' '));
+  elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
-let showXAxisArea = function (element) {
-  let gridRowHeights = element.css('grid-template-rows').split(' ');
-  gridRowHeights[0] = "auto";
+let showXAxisArea = function () {
+  let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
   gridRowHeights[2] = "1.375em";
-  element.css('grid-template-rows', gridRowHeights.join(' '));
+  elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
-let showYAxisArea = function (element) {
-  let gridColumnWidths = element.css('grid-template-columns').split(' ');
+let showYAxisArea = function () {
+  let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[0] = "1.375em";
-  gridColumnWidths[1] = "auto";
-  element.css('grid-template-columns', gridColumnWidths.join(' '));
+  elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
+};
+
+let hideTickArea = function () {
+  let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
+  gridColumnWidths[1] = 0;
+  gridColumnWidths[2] = 0;
+  elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
+};
+
+let bestTick = function (maxValue, mostTicks) {
+  let tick;
+  const minInterval = maxValue / mostTicks;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(minInterval)));
+  const residual = minInterval / magnitude;
+
+  if (residual > 5) {
+    tick = 10 * magnitude;
+  } else if (residual > 2) {
+    tick = 5 * magnitude;
+  } else if (residual > 1) {
+    tick = 2 * magnitude;
+  } else {
+    tick = magnitude;
+  }
+
+  return tick;
+};
+
+const generateTicks = function (intervalHeight, scale, tickInterval) {
+  const ticks = scale / tickInterval;
+  let tickContainer = $("<div class='ticks'></div>");
+
+  for (let i = 0; i < ticks; i++) {
+    let intervalEl = $("<div></div>");
+    intervalEl.css({
+      "box-sizing": "border-box",
+      "border-top": "1px solid black",
+      "height": intervalHeight + "%"
+    });
+    tickContainer.append(intervalEl);
+  }
+  tickContainer.css({
+    "grid-area": "tick-marks"
+  });
+
+  return tickContainer;
+};
+
+const generateTickValues = function (intervalHeight, scale, tickInterval) {
+  let widestTickVal = $("<span id='del'>" + scale.toLocaleString() + "</span>");
+  widestTickVal.css({
+    "visibility": "none",
+    "font-size": "0.8em"
+  });
+  $("body").append(widestTickVal);
+  let tickColWidth = $("#del").width() + 5;
+  $("#del").remove();
+  let gridColumnWidths = elementDefaults["grid-template-columns"].split(' ');
+  gridColumnWidths[1] = tickColWidth + "px";
+  elementDefaults["grid-template-columns"] = gridColumnWidths.join(' ');
+
+  let tickValueContainer = $("<div class='tick-values'></div>");
+  for (let i = tickInterval; i <= scale; i += tickInterval) {
+    let tickValue = $("<div>" + i.toLocaleString() + "</div>");
+    tickValue.css({
+      "height": intervalHeight + "%",
+      "margin-top": "-0.5em",
+      "margin-bottom": "0.5em",
+      "padding-right": "5px",
+      "font-size": "0.8em",
+      "text-align": "right"
+    });
+    tickValueContainer.prepend(tickValue);
+  }
+  tickValueContainer.css({
+    "grid-area": "tick-values"
+  });
+
+  return tickValueContainer;
+};
+
+const drawGraph = function (data, scale, options, barOptions) {
+  let graph = $("<div class='graph'></div>");
+
+  // Get each value's percentage of the scale
+  data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
+
+  // Create and add each data item as a bar on the graph
+  data.forEach(function (datum) { graph.append(drawBar(datum, barOptions)); });
+
+  // Apply styling to the graph
+  graph.css(Object.assign(graphDefaults, options));
+
+  return graph;
+};
+
+const drawYAxisElements = function (yAxis, scale, tickInterval, options) {
+  let name;
+  let ticks, tickValues;
+  const intervalHeight = tickInterval / scale * 100;
+
+  if (yAxis) {
+    showYAxisArea();
+    name = createYAxis(yAxis);
+  }
+
+  options = Object.assign({showTicks: true}, options)
+  if (options.showTicks) {
+    ticks = generateTicks(intervalHeight, scale, tickInterval);
+    tickValues = generateTickValues(intervalHeight, scale, tickInterval);
+  } else {
+    hideTickArea();
+  }
+
+  return [name, tickValues, ticks];
+};
+
+const drawXAxisElements = function (xAxis, labels, barOptions) {
+  let labelsElement;
+  let xAxisName;
+
+  if (labels) {
+    showLabelArea();
+    labelsElement = createLabels(labels, barOptions);
+  }
+
+  if (xAxis) {
+    showXAxisArea();
+    xAxisName = createXAxis(xAxis);
+  }
+
+  return [labelsElement, xAxisName];
 };
 
 const drawBarChart = function (data, options, element) {
-  let graph = $("<div class='graph'></div>");
-  let xAxis, yAxis;
+  // Get the data into an array and collect labels if an object was passed in
   let labels;
-
   if (!Array.isArray(data)) {
-    labels = [];
-    data = Object.keys(data).map(function (label, idx) {
-      labels.push(label);
-      return data[label];
-    });
+    labels = Object.keys(data);
+    data = Object.values(data);
   }
-  const max = Math.max.apply(Math, data);
 
+  // Determine scale
+  const max = Math.max.apply(Math, data);
+  const tickInterval = bestTick(max, 8);
+  const scale = Math.ceil(max / tickInterval) * tickInterval;
+
+  // Extract options
+  let elementOptions = extractElementProperties(options);
+  let xAxis, yAxis;
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
 
-  // Get each value's percentage of the max
-  data = data.map(function (datum) { return [ datum, datum / max * 100 ]; });
-
+  // add the graph to the element specified
   let barOptions = extractBarOptions(options);
+  element.append(drawGraph(data, scale, options, barOptions));
+  element.append(drawYAxisElements(yAxis, scale, tickInterval, options));
+  element.append(drawXAxisElements(xAxis, labels, barOptions));
 
   // Apply some styling to the element that holds the graph
-  let elementOptions = extractElementProperties(options);
   element.css(Object.assign(elementDefaults, elementOptions));
-
-  // Apply styling to the graph itself
-  graph.css(Object.assign(graphDefaults, options));
-
-  // Create and add each data item as a bar on the graph
-  data.forEach(function (datum) { createBar(datum, barOptions, graph); });
-
-  // add the graph to the element specified
-  element.append(graph);
-
-  if (labels) {
-    showLabelArea(element);
-    element.append(createLabels(labels, barOptions));
-  }
-  if (xAxis) {
-    showXAxisArea(element);
-    element.append(createXAxis(xAxis));
-  }
-  if (yAxis) {
-    showYAxisArea(element);
-    element.prepend(createYAxis(yAxis));
-  }
 };

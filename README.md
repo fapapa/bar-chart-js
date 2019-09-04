@@ -31,6 +31,8 @@ labels as keys, and values to chart. With the latter, each bar is labeled.
   any valid CSS color (named color, hex value, etc.).
 * `barSpacing`: a string specifying the space between (and around) the bars of
   the chart. Must be a CSS unit (px, %, em, etc.).
+* `showTicks`: a boolean value (default is `true`) specifying whether to show
+  tick marks and values on the y-axis
 
 `element` is the html (or jQuery) element that you want the chart to be inserted
 into.
