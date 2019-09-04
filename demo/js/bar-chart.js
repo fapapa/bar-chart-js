@@ -251,6 +251,21 @@ const generateTickValues = function (intervalHeight, scale, tickInterval) {
   return tickValueContainer;
 };
 
+const drawGraph = function (data, scale, options, barOptions) {
+  let graph = $("<div class='graph'></div>");
+
+  // Get each value's percentage of the scale
+  data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
+
+  // Create and add each data item as a bar on the graph
+  data.forEach(function (datum) { createBar(datum, barOptions, graph); });
+
+  // Apply styling to the graph
+  graph.css(Object.assign(graphDefaults, options));
+
+  return graph;
+};
+
 const drawBarChart = function (data, options, element) {
   // Get the data into an array and collect labels if an object was passed in
   let labels;
@@ -259,14 +274,10 @@ const drawBarChart = function (data, options, element) {
     data = Object.values(data);
   }
 
-
-
   // Determine scale
   const max = Math.max.apply(Math, data);
   const tickInterval = bestTick(max, 8);
   const scale = Math.ceil(max / tickInterval) * tickInterval;
-
-
 
   // Extract options
   let elementOptions = extractElementProperties(options);
@@ -274,19 +285,9 @@ const drawBarChart = function (data, options, element) {
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
 
-
-
-  // Draw the graph
-  let graph = $("<div class='graph'></div>");
-  let barOptions = extractBarOptions(options);
-  // Get each value's percentage of the scale
-  data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
-  // Apply styling to the graph
-  graph.css(Object.assign(graphDefaults, options));
-  // Create and add each data item as a bar on the graph
-  data.forEach(function (datum) { createBar(datum, barOptions, graph); });
   // add the graph to the element specified
-  element.append(graph);
+  let barOptions = extractBarOptions(options);
+  element.append(drawGraph(data, scale, options, barOptions));
 
 
 
