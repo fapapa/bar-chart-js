@@ -162,19 +162,19 @@ let createLabels = function (labels, barOptions) {
   return labelEl;
 };
 
-let showLabelArea = function (element) {
+let showLabelArea = function () {
   let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
   gridRowHeights[1] = "1.375em";
   elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
-let showXAxisArea = function (element) {
+let showXAxisArea = function () {
   let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
   gridRowHeights[2] = "1.375em";
   elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
-let showYAxisArea = function (element) {
+let showYAxisArea = function () {
   let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[0] = "1.375em";
   elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
@@ -272,7 +272,7 @@ const drawYAxisElements = function (yAxis, scale, tickInterval) {
   const intervalHeight = tickInterval / scale * 100;
 
   if (yAxis) {
-    showYAxisArea(element);
+    showYAxisArea();
     name = createYAxis(yAxis);
   }
 
@@ -280,6 +280,23 @@ const drawYAxisElements = function (yAxis, scale, tickInterval) {
   const tickValues = generateTickValues(intervalHeight, scale, tickInterval);
 
   return [name, tickValues, ticks];
+};
+
+const drawXAxisElements = function (xAxis, labels, barOptions) {
+  let labelsElement;
+  let xAxisName;
+
+  if (labels) {
+    showLabelArea();
+    labelsElement = createLabels(labels, barOptions);
+  }
+
+  if (xAxis) {
+    showXAxisArea();
+    xAxisName = createXAxis(xAxis);
+  }
+
+  return [labelsElement, xAxisName];
 };
 
 const drawBarChart = function (data, options, element) {
@@ -304,21 +321,8 @@ const drawBarChart = function (data, options, element) {
   // add the graph to the element specified
   let barOptions = extractBarOptions(options);
   element.append(drawGraph(data, scale, options, barOptions));
-
-  // Draw the y-axis elements
   element.append(drawYAxisElements(yAxis, scale, tickInterval));
-
-  // Draw the x-axis elements
-  if (labels) {
-    showLabelArea(element);
-    element.append(createLabels(labels, barOptions));
-  }
-  if (xAxis) {
-    showXAxisArea(element);
-    element.append(createXAxis(xAxis));
-  }
-
-
+  element.append(drawXAxisElements(xAxis, labels, barOptions));
 
   // Apply some styling to the element that holds the graph
   element.css(Object.assign(elementDefaults, elementOptions));
