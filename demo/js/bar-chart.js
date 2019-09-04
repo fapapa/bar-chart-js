@@ -201,46 +201,34 @@ let bestTick = function (maxValue, mostTicks) {
   return tick;
 };
 
-const drawBarChart = function (data, options, element) {
-  let graph = $("<div class='graph'></div>");
-  let xAxis, yAxis;
-  let labels;
-
-  if (!Array.isArray(data)) {
-    labels = [];
-    data = Object.keys(data).map(function (label, idx) {
-      labels.push(label);
-      return data[label];
-    });
-  }
-  const max = Math.max.apply(Math, data);
-
-  const tickInterval = bestTick(max, 8);
-  const scale = Math.ceil(max / tickInterval) * tickInterval;
-  const intervalHeight = tickInterval / scale;
+const generateTicks = function (intervalHeight, scale, tickInterval) {
   const ticks = scale / tickInterval;
   let tickContainer = $("<div class='ticks'></div>");
+
   for (let i = 0; i < ticks; i++) {
     let intervalEl = $("<div></div>");
     intervalEl.css({
       "box-sizing": "border-box",
       "border-top": "1px solid black",
-      "height": intervalHeight * 100 + "%"
+      "height": intervalHeight + "%"
     });
     tickContainer.append(intervalEl);
   }
   tickContainer.css({
     "grid-area": "tick-marks"
   });
-  element.append(tickContainer);
 
+  return tickContainer;
+};
+
+const generateTickValues = function (intervalHeight, scale, tickInterval) {
   let widestTickVal = $("<span id='del'>" + scale.toLocaleString() + "</span>");
   widestTickVal.css({
     "visibility": "none",
     "font-size": "0.8em"
   });
-  element.append(widestTickVal);
-  let tickColWidth = $("#del", element).width() + 5;
+  $("body").append(widestTickVal);
+  let tickColWidth = $("#del").width() + 5;
   $("#del").remove();
   let gridColumnWidths = elementDefaults["grid-template-columns"].split(' ');
   gridColumnWidths[1] = tickColWidth + "px";
@@ -250,7 +238,7 @@ const drawBarChart = function (data, options, element) {
   for (let i = tickInterval; i <= scale; i += tickInterval) {
     let tickValue = $("<div>" + i.toLocaleString() + "</div>");
     tickValue.css({
-      "height": intervalHeight * 100 + "%",
+      "height": intervalHeight + "%",
       "margin-top": "-0.5em",
       "margin-bottom": "0.5em",
       "padding-right": "5px",
@@ -262,7 +250,28 @@ const drawBarChart = function (data, options, element) {
   tickValueContainer.css({
     "grid-area": "tick-values"
   });
-  element.append(tickValueContainer);
+
+  return tickValueContainer;
+};
+
+const drawBarChart = function (data, options, element) {
+  let graph = $("<div class='graph'></div>");
+  let xAxis, yAxis;
+  let labels;
+
+  // Get the data into an array and collect labels if an object was passed in
+  if (!Array.isArray(data)) {
+    labels = Object.keys(data);
+    data = Object.values(data);
+  }
+
+  const max = Math.max.apply(Math, data);
+  const tickInterval = bestTick(max, 8);
+  const scale = Math.ceil(max / tickInterval) * tickInterval;
+  const intervalHeight = tickInterval / scale * 100;
+
+  element.append(generateTicks(intervalHeight, scale, tickInterval));
+  element.append(generateTickValues(intervalHeight, scale, tickInterval));
 
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
