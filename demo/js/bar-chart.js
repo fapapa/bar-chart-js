@@ -1,10 +1,13 @@
 let elementDefaults = {
+  "width": "500px",
+  "height": "300px"
+};
+
+let chartDefaults = {
   "display": "grid",
   "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
   "grid-template-rows": "auto 0 0",
-  "grid-template-columns": "0 20px 5px auto",
-  "width": "500px",
-  "height": "300px"
+  "grid-template-columns": "0 20px 5px auto"
 };
 
 let graphDefaults = {
@@ -91,7 +94,7 @@ let extractYAxis = function (options) {
 };
 
 let extractElementProperties = function (options) {
-  let elementOptions;
+  let elementOptions = {};
 
   [ "width", "height" ].forEach(function (prop) {
     if (options[prop]) {
@@ -163,28 +166,28 @@ let createLabels = function (labels, barOptions) {
 };
 
 let showLabelArea = function () {
-  let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
+  let gridRowHeights = chartDefaults['grid-template-rows'].split(' ');
   gridRowHeights[1] = "1.375em";
-  elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
+  chartDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
 let showXAxisArea = function () {
-  let gridRowHeights = elementDefaults['grid-template-rows'].split(' ');
+  let gridRowHeights = chartDefaults['grid-template-rows'].split(' ');
   gridRowHeights[2] = "1.375em";
-  elementDefaults['grid-template-rows'] = gridRowHeights.join(' ');
+  chartDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
 let showYAxisArea = function () {
-  let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
+  let gridColumnWidths = chartDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[0] = "1.375em";
-  elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
+  chartDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
 let hideTickArea = function () {
-  let gridColumnWidths = elementDefaults['grid-template-columns'].split(' ');
+  let gridColumnWidths = chartDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[1] = 0;
   gridColumnWidths[2] = 0;
-  elementDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
+  chartDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
 let bestTick = function (maxValue, mostTicks) {
@@ -235,9 +238,9 @@ const generateTickValues = function (intervalHeight, scale, tickInterval) {
   $("body").append(widestTickVal);
   let tickColWidth = $("#del").width() + 5;
   $("#del").remove();
-  let gridColumnWidths = elementDefaults["grid-template-columns"].split(' ');
+  let gridColumnWidths = chartDefaults["grid-template-columns"].split(' ');
   gridColumnWidths[1] = tickColWidth + "px";
-  elementDefaults["grid-template-columns"] = gridColumnWidths.join(' ');
+  chartDefaults["grid-template-columns"] = gridColumnWidths.join(' ');
 
   let tickValueContainer = $("<div class='tick-values'></div>");
   for (let i = tickInterval; i <= scale; i += tickInterval) {
@@ -312,6 +315,21 @@ const drawXAxisElements = function (xAxis, labels, barOptions) {
   return [labelsElement, xAxisName];
 };
 
+const drawChart = function (height, data, labels, scale, tickInterval, options) {
+  let chart = $("<article class='chart'></article>");
+  let barOptions = extractBarOptions(options);
+  let xAxis, yAxis;
+  xAxis = extractXAxis(options);
+  yAxis = extractYAxis(options);
+
+  chart.append(drawGraph(data, scale, options, barOptions));
+  chart.append(drawYAxisElements(yAxis, scale, tickInterval, options));
+  chart.append(drawXAxisElements(xAxis, labels, barOptions));
+  chart.css(Object.assign(chartDefaults, { "height": height }));
+
+  return chart;
+};
+
 const drawBarChart = function (data, options, element) {
   // Get the data into an array and collect labels if an object was passed in
   let labels;
@@ -327,16 +345,24 @@ const drawBarChart = function (data, options, element) {
 
   // Extract options
   let elementOptions = extractElementProperties(options);
-  let xAxis, yAxis;
-  xAxis = extractXAxis(options);
-  yAxis = extractYAxis(options);
+  let elementProperties = Object.assign(elementDefaults, elementOptions);
 
-  // add the graph to the element specified
-  let barOptions = extractBarOptions(options);
-  element.append(drawGraph(data, scale, options, barOptions));
-  element.append(drawYAxisElements(yAxis, scale, tickInterval, options));
-  element.append(drawXAxisElements(xAxis, labels, barOptions));
+  let titleHeight = 0;
+  if (options.title) {
+    let titleEl = $("<header class='title'><h1>" + options.title + "</h1></header>");
+    let titleSize = options.titleSize || "";
+    let titleColor = options.titleColor || "";
+    element.append(titleEl);
+    titleEl.css({ "font-size": titleSize, "color": titleColor });
+
+    let h1 = $("h1", titleEl);
+    titleHeight = h1.outerHeight(true);
+    titleHeight -= parseInt(h1.css("margin-top"));
+  }
+
+  let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
+  element.append(drawChart(chartHeight, data, labels, scale, tickInterval, options));
 
   // Apply some styling to the element that holds the graph
-  element.css(Object.assign(elementDefaults, elementOptions));
+  element.css(elementProperties);
 };
