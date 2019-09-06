@@ -15,10 +15,10 @@ labels as keys, and values to chart. With the latter, each bar is labeled.
 
 `options` is a javascript literal that can contain the following properties:
 
-* `width`: a string specifying the width of the chart. Must be a CSS unit (px,
-  %, em, etc.).
-* `height`: a string specifying the height of the chart. Must be a CSS unit (px,
-  %, em, etc.).
+* `width`: (default `500px`) a string specifying the width of the chart. Must be
+  a CSS unit (px, %, em, etc.).
+* `height`: (default `300px`) a string specifying the height of the chart. Must
+  be a CSS unit (px, %, em, etc.).
 * `xAxisName`: a string specifying the name of the x-axis to display on the
   chart.
 * `yAxisName`: a string specifying the name of the y-axis to display on the
