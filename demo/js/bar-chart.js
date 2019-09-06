@@ -351,8 +351,9 @@ const drawBarChart = function (data, options, element) {
   if (options.title) {
     let titleEl = $("<header class='title'><h1>" + options.title + "</h1></header>");
     let titleSize = options.titleSize || "";
+    let titleColor = options.titleColor || "";
     element.append(titleEl);
-    titleEl.css("font-size", titleSize);
+    titleEl.css({ "font-size": titleSize, "color": titleColor });
 
     let h1 = $("h1", titleEl);
     titleHeight = h1.outerHeight(true);
