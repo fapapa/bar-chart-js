@@ -15,6 +15,7 @@ labels as keys, and values to chart. With the latter, each bar is labeled.
 
 `options` is a javascript literal that can contain the following properties:
 
+* `title`: a string specifying the title to display for the chart
 * `width`: (default `500px`) a string specifying the width of the chart. Must be
   a CSS unit (px, %, em, etc.).
 * `height`: (default `300px`) a string specifying the height of the chart. Must
