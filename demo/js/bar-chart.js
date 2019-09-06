@@ -350,8 +350,13 @@ const drawBarChart = function (data, options, element) {
   let titleHeight = 0;
   if (options.title) {
     let titleEl = $("<header class='title'><h1>" + options.title + "</h1></header>");
+    let titleSize = options.titleSize || "";
     element.append(titleEl);
-    titleHeight = titleEl.outerHeight(true);
+    titleEl.css("font-size", titleSize);
+
+    let h1 = $("h1", titleEl);
+    titleHeight = h1.outerHeight(true);
+    titleHeight -= parseInt(h1.css("margin-top"));
   }
 
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
