@@ -356,6 +356,24 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
+const normalize = function (data) {
+  // Turn array into a chart data object
+  if (Array.isArray(data)) {
+    data = data.reduce(function (obj, value) {
+      obj[value.toString()] = value;
+      return obj;
+    }, {});
+  }
+
+  // Ensure each category value is represented as an array, even if it only
+  // contains a single value
+  for (let category in data) {
+    if (!Array.isArray(data[category])) { data[category] = [ data[category] ] }
+  }
+
+  return data;
+};
+
 const getMaxFor = function (data) {
   // TODO: What if the data includes negative numbers?
   let max = 0;
@@ -372,16 +390,8 @@ const getMaxFor = function (data) {
 };
 
 const drawBarChart = function (data, options, element) {
-  // Get the data into a standard object, creating labels where they don't exist
-  if (Array.isArray(data)) {
-    data = data.reduce(function (obj, value) {
-      obj[value.toString()] = value;
-      return obj;
-    }, {});
-  }
-  for (let category in data) {
-    if (!Array.isArray(data[category])) { data[category] = [ data[category] ] }
-  }
+  // Normalize the data
+  data = normalize(data);
 
   // Determine scale
   const max = getMaxFor(data);
