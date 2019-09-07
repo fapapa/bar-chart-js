@@ -22,13 +22,20 @@ let graphDefaults = {
 
 let barProperties = {
   "display": "flex",
-  "align-items": "flex-start",
-  "justify-content": "center",
+  "flex-direction": "column-reverse",
+  "align-items": "end",
   "box-sizing": "border-box",
+  "width": "100%"
+};
+
+let barSectionProperties = {
+  "display": "flex",
+  "justify-content": "center",
   "width": "100%",
+  "box-sizing": "border-box",
   "background-color": "blue",
   "border": "1px solid black"
-};
+}
 
 let valueProperties = {
   "padding": "5px",
@@ -106,15 +113,22 @@ let extractElementProperties = function (options) {
   return elementOptions;
 };
 
-let drawBar = function (datum, options) {
-  let bar = $('<div class="chart-datum-bar"></div>');
-  let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
+let drawBar = function (barData, options) {
+  let bar =  barData.reduce(function (htmlBar, dataObj) {
+    let barSection = $("<div class='bar-section'></div>");
+    let label = $("<div class='value'>" + dataObj.value + "</div>");
 
-  bar.css(Object.assign(
-    barProperties, options, {"height": datum[1] + "%"}));
-  valueLabel.css(valueProperties);
+    barSection.css(Object.assign(barSectionProperties,
+                                 {"height": dataObj.height + "%"}));
+    label.css(valueProperties);
+    barSection.append(label);
 
-  bar.append(valueLabel);
+    htmlBar.append(barSection);
+    return htmlBar;
+  }, $("<div class='bar'></div>"));
+
+  bar.css(Object.assign(Object.assign(
+    barProperties, options, {"height": "100%"})));
 
   return bar;
 };
@@ -267,7 +281,15 @@ const drawGraph = function (data, scale, options, barOptions) {
 
   // Get each value's percentage of the scale
   for (let category in data) {
-    data[category] = [ data[category], data[category] / scale * 100 ];
+    data[category] = data[category].reduce(function (arr, val) {
+      let obj = {};
+
+      obj.value = val;
+      obj.height = val / scale * 100;
+      arr.push(obj);
+
+      return arr;
+    }, []);
   }
 
   // Create and add each data item as a bar on the graph
@@ -334,16 +356,35 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
+const getMaxFor = function (data) {
+  // TODO: What if the data includes negative numbers?
+  let max = 0;
+  for (let category in data) {
+    let categorySum;
+
+    categorySum = data[category].reduce(function (sum, num) {
+      return sum + num;
+    });
+
+    max = categorySum > max ? categorySum : max;
+  }
+  return max;
+};
+
 const drawBarChart = function (data, options, element) {
   // Get the data into a standard object, creating labels where they don't exist
   if (Array.isArray(data)) {
-    let dataObj = {};
-    data.forEach(function (number) { dataObj[number.toString()] = number });
-    data = dataObj;
+    data = data.reduce(function (obj, value) {
+      obj[value.toString()] = value;
+      return obj;
+    }, {});
+  }
+  for (let category in data) {
+    if (!Array.isArray(data[category])) { data[category] = [ data[category] ] }
   }
 
   // Determine scale
-  const max = Math.max.apply(Math, Object.values(data));
+  const max = getMaxFor(data);
   const tickInterval = bestTick(max, 8);
   const scale = Math.ceil(max / tickInterval) * tickInterval;
 
