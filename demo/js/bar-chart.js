@@ -266,10 +266,14 @@ const drawGraph = function (data, scale, options, barOptions) {
   let graph = $("<div class='graph'></div>");
 
   // Get each value's percentage of the scale
-  data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
+  for (let category in data) {
+    data[category] = [ data[category], data[category] / scale * 100 ];
+  }
 
   // Create and add each data item as a bar on the graph
-  data.forEach(function (datum) { graph.append(drawBar(datum, barOptions)); });
+  for (let category in data) {
+    graph.append(drawBar(data[category], barOptions));
+  }
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
@@ -315,7 +319,7 @@ const drawXAxisElements = function (xAxis, labels, barOptions) {
   return [labelsElement, xAxisName];
 };
 
-const drawChart = function (height, data, labels, scale, tickInterval, options) {
+const drawChart = function (height, data, scale, tickInterval, options) {
   let chart = $("<article class='chart'></article>");
   let barOptions = extractBarOptions(options);
   let xAxis, yAxis;
@@ -324,22 +328,22 @@ const drawChart = function (height, data, labels, scale, tickInterval, options) 
 
   chart.append(drawGraph(data, scale, options, barOptions));
   chart.append(drawYAxisElements(yAxis, scale, tickInterval, options));
-  chart.append(drawXAxisElements(xAxis, labels, barOptions));
+  chart.append(drawXAxisElements(xAxis, Object.keys(data), barOptions));
   chart.css(Object.assign(chartDefaults, { "height": height }));
 
   return chart;
 };
 
 const drawBarChart = function (data, options, element) {
-  // Get the data into an array and collect labels if an object was passed in
-  let labels;
-  if (!Array.isArray(data)) {
-    labels = Object.keys(data);
-    data = Object.values(data);
+  // Get the data into a standard object, creating labels where they don't exist
+  if (Array.isArray(data)) {
+    let dataObj = {};
+    data.forEach(function (number) { dataObj[number.toString()] = number });
+    data = dataObj;
   }
 
   // Determine scale
-  const max = Math.max.apply(Math, data);
+  const max = Math.max.apply(Math, Object.values(data));
   const tickInterval = bestTick(max, 8);
   const scale = Math.ceil(max / tickInterval) * tickInterval;
 
@@ -361,7 +365,7 @@ const drawBarChart = function (data, options, element) {
   }
 
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
-  element.append(drawChart(chartHeight, data, labels, scale, tickInterval, options));
+  element.append(drawChart(chartHeight, data, scale, tickInterval, options));
 
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
