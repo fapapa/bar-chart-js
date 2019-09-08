@@ -123,6 +123,13 @@ let drawBar = function (barData, options) {
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
     }
+    if (idx == barData.length - 1) {
+      barSectionProperties["border-top-left-radius"] = "4px";
+      barSectionProperties["border-top-right-radius"] = "4px";
+    } else {
+      delete barSectionProperties["border-top-left-radius"];
+      delete barSectionProperties["border-top-right-radius"];
+    }
 
     barSection.css(Object.assign(barSectionProperties,
                                  {"height": dataObj.height + "%"}));
