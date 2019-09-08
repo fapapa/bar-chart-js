@@ -33,8 +33,7 @@ let barSectionProperties = {
   "justify-content": "center",
   "width": "100%",
   "box-sizing": "border-box",
-  "background-color": "blue",
-  "border": "1px solid black"
+  "background-color": "blue"
 }
 
 let valueProperties = {
