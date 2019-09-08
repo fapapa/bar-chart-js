@@ -33,8 +33,7 @@ let barSectionProperties = {
   "justify-content": "center",
   "width": "100%",
   "box-sizing": "border-box",
-  "background-color": "blue",
-  "border": "1px solid black"
+  "background-color": "blue"
 }
 
 let valueProperties = {
@@ -123,6 +122,13 @@ let drawBar = function (barData, options) {
     let label = $("<div class='value'>" + dataObj.value + "</div>");
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
+    }
+    if (idx == barData.length - 1) {
+      barSectionProperties["border-top-left-radius"] = "4px";
+      barSectionProperties["border-top-right-radius"] = "4px";
+    } else {
+      delete barSectionProperties["border-top-left-radius"];
+      delete barSectionProperties["border-top-right-radius"];
     }
 
     barSection.css(Object.assign(barSectionProperties,
