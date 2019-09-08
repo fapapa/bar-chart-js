@@ -158,16 +158,18 @@ let createYAxis = function (yAxis) {
 };
 
 let createLabels = function (labels, barOptions) {
-  let labelEl = $("<div class='x-axis-labels'></div>");
-
-  labels.forEach(function (label) {
-    labelEl.append($("<div>" + label + "</div>").css({
+  // TODO: if a simple array is passed in as data to the drawBarChart method,
+  // don't show the labels as they are just made-up ones used to normalize the
+  // data structure
+  let labelEl = labels.reduce(function (htmlLabel, label) {
+    htmlLabel.append($("<div>" + label + "</div>").css({
       "flex": "1 1 " + 100 / labels.length + "%",
       "padding-right": barOptions["margin-left"],
       "font-size": "0.8em",
       "text-align": "center"
     }));
-  });
+    return htmlLabel;
+  }, $("<div class='x-axis-labels'></div>"));
 
   labelEl.css({
     "grid-area": "labels",
