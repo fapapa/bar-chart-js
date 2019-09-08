@@ -11,7 +11,10 @@ drawBarChart(data, options, element);
 ```
 
 `data` can be either an array of values to chart, or an object literal with
-labels as keys, and values to chart. With the latter, each bar is labeled.
+labels as keys, and values to chart. With the latter, each bar is labeled. To
+create a stacked bar chart, either pass in a two-dimensional array (the value in
+each inner array will get stacked) or pass in an object litery with an array of
+values for each property.
 
 `options` is a javascript literal that can contain the following properties:
 
