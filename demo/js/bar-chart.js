@@ -22,13 +22,20 @@ let graphDefaults = {
 
 let barProperties = {
   "display": "flex",
-  "align-items": "flex-start",
-  "justify-content": "center",
+  "flex-direction": "column-reverse",
+  "align-items": "end",
   "box-sizing": "border-box",
+  "width": "100%"
+};
+
+let barSectionProperties = {
+  "display": "flex",
+  "justify-content": "center",
   "width": "100%",
+  "box-sizing": "border-box",
   "background-color": "blue",
   "border": "1px solid black"
-};
+}
 
 let valueProperties = {
   "padding": "5px",
@@ -59,7 +66,11 @@ let extractBarOptions = function (options) {
   }
 
   if (options.barColor) {
-    barOptions["background-color"] = options.barColor;
+    if (Array.isArray(options.barColor)) {
+      barOptions.colors = options.barColor;
+    } else {
+      barOptions["background-color"] = options.barColor;
+    }
     delete options.barColor;
   }
 
@@ -106,15 +117,25 @@ let extractElementProperties = function (options) {
   return elementOptions;
 };
 
-let drawBar = function (datum, options) {
-  let bar = $('<div class="chart-datum-bar"></div>');
-  let valueLabel = $("<div class='value'>" + datum[0] + "</div>");
+let drawBar = function (barData, options) {
+  let bar = barData.reduce(function (htmlBar, dataObj, idx) {
+    let barSection = $("<div class='bar-section'></div>");
+    let label = $("<div class='value'>" + dataObj.value + "</div>");
+    if (options.colors) {
+      barSectionProperties["background-color"] = options.colors[idx];
+    }
 
-  bar.css(Object.assign(
-    barProperties, options, {"height": datum[1] + "%"}));
-  valueLabel.css(valueProperties);
+    barSection.css(Object.assign(barSectionProperties,
+                                 {"height": dataObj.height + "%"}));
+    label.css(valueProperties);
+    barSection.append(label);
 
-  bar.append(valueLabel);
+    htmlBar.append(barSection);
+    return htmlBar;
+  }, $("<div class='bar'></div>"));
+
+  bar.css(Object.assign(Object.assign(
+    barProperties, options, {"height": "100%"})));
 
   return bar;
 };
@@ -144,16 +165,18 @@ let createYAxis = function (yAxis) {
 };
 
 let createLabels = function (labels, barOptions) {
-  let labelEl = $("<div class='x-axis-labels'></div>");
-
-  labels.forEach(function (label) {
-    labelEl.append($("<div>" + label + "</div>").css({
+  // TODO: if a simple array is passed in as data to the drawBarChart method,
+  // don't show the labels as they are just made-up ones used to normalize the
+  // data structure
+  let labelEl = labels.reduce(function (htmlLabel, label) {
+    htmlLabel.append($("<div>" + label + "</div>").css({
       "flex": "1 1 " + 100 / labels.length + "%",
       "padding-right": barOptions["margin-left"],
       "font-size": "0.8em",
       "text-align": "center"
     }));
-  });
+    return htmlLabel;
+  }, $("<div class='x-axis-labels'></div>"));
 
   labelEl.css({
     "grid-area": "labels",
@@ -266,10 +289,22 @@ const drawGraph = function (data, scale, options, barOptions) {
   let graph = $("<div class='graph'></div>");
 
   // Get each value's percentage of the scale
-  data = data.map(function (datum) { return [ datum, datum / scale * 100 ]; });
+  for (let category in data) {
+    data[category] = data[category].reduce(function (arr, val) {
+      let obj = {};
+
+      obj.value = val;
+      obj.height = val / scale * 100;
+      arr.push(obj);
+
+      return arr;
+    }, []);
+  }
 
   // Create and add each data item as a bar on the graph
-  data.forEach(function (datum) { graph.append(drawBar(datum, barOptions)); });
+  for (let category in data) {
+    graph.append(drawBar(data[category], barOptions));
+  }
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
@@ -315,7 +350,7 @@ const drawXAxisElements = function (xAxis, labels, barOptions) {
   return [labelsElement, xAxisName];
 };
 
-const drawChart = function (height, data, labels, scale, tickInterval, options) {
+const drawChart = function (height, data, scale, tickInterval, options) {
   let chart = $("<article class='chart'></article>");
   let barOptions = extractBarOptions(options);
   let xAxis, yAxis;
@@ -324,22 +359,51 @@ const drawChart = function (height, data, labels, scale, tickInterval, options) 
 
   chart.append(drawGraph(data, scale, options, barOptions));
   chart.append(drawYAxisElements(yAxis, scale, tickInterval, options));
-  chart.append(drawXAxisElements(xAxis, labels, barOptions));
+  chart.append(drawXAxisElements(xAxis, Object.keys(data), barOptions));
   chart.css(Object.assign(chartDefaults, { "height": height }));
 
   return chart;
 };
 
-const drawBarChart = function (data, options, element) {
-  // Get the data into an array and collect labels if an object was passed in
-  let labels;
-  if (!Array.isArray(data)) {
-    labels = Object.keys(data);
-    data = Object.values(data);
+const normalize = function (data) {
+  // Turn array into a chart data object
+  if (Array.isArray(data)) {
+    data = data.reduce(function (obj, value) {
+      obj[value.toString()] = value;
+      return obj;
+    }, {});
   }
 
+  // Ensure each category value is represented as an array, even if it only
+  // contains a single value
+  for (let category in data) {
+    if (!Array.isArray(data[category])) { data[category] = [ data[category] ] }
+  }
+
+  return data;
+};
+
+const getMaxFor = function (data) {
+  // TODO: What if the data includes negative numbers?
+  let max = 0;
+  for (let category in data) {
+    let categorySum;
+
+    categorySum = data[category].reduce(function (sum, num) {
+      return sum + num;
+    });
+
+    max = categorySum > max ? categorySum : max;
+  }
+  return max;
+};
+
+const drawBarChart = function (data, options, element) {
+  // Normalize the data
+  data = normalize(data);
+
   // Determine scale
-  const max = Math.max.apply(Math, data);
+  const max = getMaxFor(data);
   const tickInterval = bestTick(max, 8);
   const scale = Math.ceil(max / tickInterval) * tickInterval;
 
@@ -361,7 +425,7 @@ const drawBarChart = function (data, options, element) {
   }
 
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
-  element.append(drawChart(chartHeight, data, labels, scale, tickInterval, options));
+  element.append(drawChart(chartHeight, data, scale, tickInterval, options));
 
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
