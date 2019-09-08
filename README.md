@@ -11,7 +11,10 @@ drawBarChart(data, options, element);
 ```
 
 `data` can be either an array of values to chart, or an object literal with
-labels as keys, and values to chart. With the latter, each bar is labeled.
+labels as keys, and values to chart. With the latter, each bar is labeled. To
+create a stacked bar chart, either pass in a two-dimensional array (the value in
+each inner array will get stacked) or pass in an object litery with an array of
+values for each property.
 
 `options` is a javascript literal that can contain the following properties:
 
@@ -33,7 +36,9 @@ labels as keys, and values to chart. With the latter, each bar is labeled.
 * `valueLabelColor`: a string specifying the color of the value label on each
   bar. Must be any valid CSS color (named color, hex value, etc.).
 * `barColor`: a string specifying the color of the bars on the chart. Must be
-  any valid CSS color (named color, hex value, etc.).
+  any valid CSS color (named color, hex value, etc.). For a stacked bar chart,
+  you can pass in an array of colors for `barcolor` to specify the color of each
+  section of the stack.
 * `barSpacing`: a string specifying the space between (and around) the bars of
   the chart. Must be a CSS unit (px, %, em, etc.).
 * `showTicks`: a boolean value (default is `true`) specifying whether to show
