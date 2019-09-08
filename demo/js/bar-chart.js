@@ -66,7 +66,11 @@ let extractBarOptions = function (options) {
   }
 
   if (options.barColor) {
-    barOptions["background-color"] = options.barColor;
+    if (Array.isArray(options.barColor)) {
+      barOptions.colors = options.barColor;
+    } else {
+      barOptions["background-color"] = options.barColor;
+    }
     delete options.barColor;
   }
 
@@ -114,9 +118,12 @@ let extractElementProperties = function (options) {
 };
 
 let drawBar = function (barData, options) {
-  let bar =  barData.reduce(function (htmlBar, dataObj) {
+  let bar = barData.reduce(function (htmlBar, dataObj, idx) {
     let barSection = $("<div class='bar-section'></div>");
     let label = $("<div class='value'>" + dataObj.value + "</div>");
+    if (options.colors) {
+      barSectionProperties["background-color"] = options.colors[idx];
+    }
 
     barSection.css(Object.assign(barSectionProperties,
                                  {"height": dataObj.height + "%"}));
