@@ -36,7 +36,9 @@ values for each property.
 * `valueLabelColor`: a string specifying the color of the value label on each
   bar. Must be any valid CSS color (named color, hex value, etc.).
 * `barColor`: a string specifying the color of the bars on the chart. Must be
-  any valid CSS color (named color, hex value, etc.).
+  any valid CSS color (named color, hex value, etc.). For a stacked bar chart,
+  you can pass in an array of colors for `barcolor` to specify the color of each
+  section of the stack.
 * `barSpacing`: a string specifying the space between (and around) the bars of
   the chart. Must be a CSS unit (px, %, em, etc.).
 * `showTicks`: a boolean value (default is `true`) specifying whether to show
