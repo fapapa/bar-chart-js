@@ -437,5 +437,5 @@ const drawBarChart = function (data, options, element) {
   element.css(elementProperties);
 
   // Animate the bars
-  $(".bar").animate({height: "100%"}, 333);
+  $(".bar").animate({height: "100%"}, 333 /* Third of a second */);
 };
