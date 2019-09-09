@@ -140,8 +140,8 @@ let drawBar = function (barData, options) {
     return htmlBar;
   }, $("<div class='bar'></div>"));
 
-  bar.css(Object.assign(Object.assign(
-    barProperties, options, {"height": "100%"})));
+  bar.css(Object.assign(
+    barProperties, options, {"height": "100%"}));
 
   return bar;
 };
