@@ -140,8 +140,8 @@ let drawBar = function (barData, options) {
     return htmlBar;
   }, $("<div class='bar'></div>"));
 
-  bar.css(Object.assign(Object.assign(
-    barProperties, options, {"height": "100%"})));
+  bar.css(Object.assign(
+    barProperties, options, {"height": "0"}));
 
   return bar;
 };
@@ -435,4 +435,7 @@ const drawBarChart = function (data, options, element) {
 
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
+
+  // Animate the bars
+  $(".bar").animate({height: "100%"}, 333 /* Third of a second */);
 };
