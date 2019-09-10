@@ -43,6 +43,15 @@ let valueProperties = {
   "font-family": "Helvetica, Georgia, sans-serif"
 };
 
+let legendDefaults = {
+  "position": "absolute",
+  "width": "100%",
+  "top": "0",
+  "left": "30px",
+  "display": "flex",
+  "flex-direction": "column"
+};
+
 let displayLegend = true;
 
 let extractBarOptions = function (options) {
@@ -401,15 +410,7 @@ const drawLegend = function (data, legendColors) {
     legendEl.append(legendItem);
   }
 
-  legendEl.css({
-    "position": "absolute",
-    "width": "100%",
-    "top": "0",
-    "left": "30px",
-    // "border": "1px solid black",
-    "display": "flex",
-    "flex-direction": "column"
-  });
+  legendEl.css(Object.assign(legendDefaults));
 
   return legendEl;
 };
