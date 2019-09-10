@@ -379,13 +379,13 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
-const drawLegend = function (data, legendColors) {
+const drawLegend = function (data, legendOptions) {
   let legendEl = $("<aside class='legend'></aside>")
   let legendData = {};
 
   for (let xCat in data) {
     let xCatData = Object.keys(data[xCat]).reduce(function (obj, category, idx) {
-      obj[category] = legendColors[idx];
+      obj[category] = legendOptions.barColor[idx];
       return obj;
     }, {});
     Object.assign(legendData, xCatData);
@@ -482,7 +482,10 @@ const drawBarChart = function (data, options, element) {
   // Extract options
   let elementOptions = extractElementProperties(options);
   let elementProperties = Object.assign(elementDefaults, elementOptions);
-  let legendColors = options.barColor;
+  let legendOptions = ["barColor", "legendPosition"].reduce(function (obj, property) {
+    obj[property] = options[property];
+    return obj;
+  }, {});
 
   let titleHeight = 0;
   if (options.title) {
@@ -500,7 +503,7 @@ const drawBarChart = function (data, options, element) {
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
   element.append(drawChart(chartHeight, data, scale, tickInterval, options));
 
-  if (displayLegend) { element.append(drawLegend(data, legendColors)); }
+  if (displayLegend) { element.append(drawLegend(data, legendOptions)); }
 
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
