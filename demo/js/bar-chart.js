@@ -45,9 +45,6 @@ let valueProperties = {
 
 let legendDefaults = {
   "position": "absolute",
-  "width": "100%",
-  "top": "0",
-  "left": "30px",
   "display": "flex",
   "flex-direction": "column"
 };
@@ -410,7 +407,11 @@ const drawLegend = function (data, legendOptions) {
     legendEl.append(legendItem);
   }
 
-  legendEl.css(Object.assign(legendDefaults));
+  legendOptions.legendPosition = legendOptions.legendPosition || {
+    top: "0",
+    left: "30px"
+  };
+  legendEl.css(Object.assign(legendDefaults, legendOptions.legendPosition));
 
   return legendEl;
 };
