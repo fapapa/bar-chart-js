@@ -58,7 +58,7 @@ of the individual values.
   section of the stack.
 * `barSpacing`: a string specifying the space between (and around) the bars of
   the chart. Must be a CSS unit (px, %, em, etc.).
-* `showTicks`: a boolean value (default is `true`) specifying whether to show
+* `showTicks`: a boolean value (default is `false`) specifying whether to show
   tick marks and values on the y-axis
 * `legendPosition`: an object literal specifying the absolute positioning of the
   legend (if any) relative to the generated chart; this defaults to `{ top: "0",
