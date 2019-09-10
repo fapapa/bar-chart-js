@@ -17,7 +17,6 @@ let graphDefaults = {
   "justify-content": "space-evenly",
   "align-items": "flex-end",
   "height": "100%",
-  "border-left": "1px solid black",
   "border-bottom": "1px solid black"
 };
 
@@ -319,6 +318,7 @@ const drawGraph = function (data, scale, options, barOptions) {
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
+  if (options.showTicks) { graph.css("border-left", "1px solid black") }
 
   return graph;
 };
@@ -333,7 +333,7 @@ const drawYAxisElements = function (yAxis, scale, tickInterval, options) {
     name = createYAxis(yAxis);
   }
 
-  options = Object.assign({showTicks: true}, options)
+  options = Object.assign({showTicks: false}, options)
   if (options.showTicks) {
     ticks = generateTicks(intervalHeight, scale, tickInterval);
     tickValues = generateTickValues(intervalHeight, scale, tickInterval);
