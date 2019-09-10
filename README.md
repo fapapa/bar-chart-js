@@ -10,11 +10,28 @@ Full-Stack Web Developer program.
 drawBarChart(data, options, element);
 ```
 
-`data` can be either an array of values to chart, or an object literal with
-labels as keys, and values to chart. With the latter, each bar is labeled. To
-create a stacked bar chart, either pass in a two-dimensional array (the value in
-each inner array will get stacked) or pass in an object litery with an array of
-values for each property.
+`data` can be either an array, or an object literal. You can provide an array
+either as a one-dimensional array of values to plot, producing a standard bar
+chart; or as a two-dimensional array, producing a stacked bar chart. Supplying
+an object literal instead allows you to provide x-axis labels and/or
+stacked-bar-chart categories (used to generate a legend).
+
+* `[ value1, value2, ... ]` generates a standard bar chart with the values as
+  x-axis labels
+* `[ [aValue1, aValue2, ...], [aValue1, aValue2, ...], ... ]` generates a
+  stacked bar chart
+* `{ "xAxisLabel1": value1, "xAxisLabel2": value2, ... }` generates a standard
+  bar chart with the given x-axis labels
+* `{ "xAxisLabel1": { "category1": value1A, "category2": value2A, ... },
+  "xAxisLabel2": { "category1": value1B, "category2": value2B, ... }, ... }`
+  generates a stacked bar chart with x-axis labels and a legend with categories
+
+Any of the forms that produce a stacked bar-chart should be combined with a
+`barColor` option (see below) to delineate between the sections of the bar.
+
+**N.B.**: To create a stacked bar-chart with no legend, use the first
+object-literal form above, and supply a one-dimensional array of values in place
+of the individual values.
 
 `options` is a javascript literal that can contain the following properties:
 
