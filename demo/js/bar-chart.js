@@ -76,7 +76,7 @@ let extractBarOptions = function (options) {
     if (Array.isArray(options.barColor)) {
       barOptions.colors = options.barColor;
     } else {
-      barOptions["background-color"] = options.barColor;
+      barOptions.colors = [ options.barColor ];
     }
     delete options.barColor;
   }
