@@ -60,15 +60,41 @@ of the individual values.
   the chart. Must be a CSS unit (px, %, em, etc.).
 * `showTicks`: a boolean value (default is `true`) specifying whether to show
   tick marks and values on the y-axis
+* `legendPosition`: an object literal specifying the absolute positioning of the
+  legend (if any) relative to the generated chart; this defaults to `{ top: "0",
+  left: "30px" }`
 
 `element` is the html (or jQuery) element that you want the chart to be inserted
 into.
 
 ### Examples
 
+Draws a standard bar chart, specifies a height of 500 pixels, and places the bar
+labels at the bottom of each bar:
+
 ```javascript
 drawBarChart([1, 2, 3, 4, 5], {
   "height": "500px",
   "labelPosition": "bottom"
-});
+}, $("#my-bar-chart"));
+```
+
+Draws a stacked bar chart with a legend and colors, specifying a height of 500
+pixels and a width of 800 pixels, spacing between bars of 20 pixels, and an
+x-axis title:
+
+```javascript
+drawBarChart({
+  "Monday": { "Strawberries": 1, "Avocados": 1, "Blueberries": 2 },
+  "Tuesday": { "Strawberries": 1, "Avocados": 2, "Blueberries": 3 },
+  "Wednesday": { "Strawberries": 2, "Avocados": 3, "Blueberries": 5 },
+  "Thursday": { "Strawberries": 3, "Avocados": 5, "Blueberries": 8 },
+  "Friday": { "Strawberries": 5, "Avocados": 8, "Blueberries": 13 }
+  }, {
+  height: "500px",
+  width: "800px",
+  barSpacing: "20px",
+  xAxisName: "Weekday",
+  barColor: [ "red", "green", "blue" ]
+}, $("#my-bar-chart"));
 ```
