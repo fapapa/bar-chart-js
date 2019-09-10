@@ -1,4 +1,5 @@
 let elementDefaults = {
+  "position": "relative",
   "width": "500px",
   "height": "300px"
 };
@@ -41,6 +42,8 @@ let valueProperties = {
   "color": "white",
   "font-family": "Helvetica, Georgia, sans-serif"
 };
+
+let displayLegend = true;
 
 let extractBarOptions = function (options) {
   let barOptions = {};
@@ -366,6 +369,50 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
+const drawLegend = function (data, legendColors) {
+  let legendEl = $("<aside class='legend'></aside>")
+  let legendData = {};
+
+  for (let xCat in data) {
+    let xCatData = Object.keys(data[xCat]).reduce(function (obj, category, idx) {
+      obj[category] = legendColors[idx];
+      return obj;
+    }, {});
+    Object.assign(legendData, xCatData);
+  }
+
+  for (let item in legendData) {
+    let legendItem = $("<div class='legend-item'></div>");
+    let swatch = $("<div class'swatch'></div>");
+    swatch.css({
+      "height": "1em",
+      "width": "1em",
+      "float": "left",
+      "background-color": legendData[item]
+    });
+    legendItem.append(swatch);
+    let label = $("<div class='label'>" + item + "</div>")
+    label.css({
+      "padding-left": "1.5em",
+      "font-size": "0.8em"
+    });
+    legendItem.append(label);
+    legendEl.append(legendItem);
+  }
+
+  legendEl.css({
+    "position": "absolute",
+    "width": "100%",
+    "top": "0",
+    "left": "30px",
+    // "border": "1px solid black",
+    "display": "flex",
+    "flex-direction": "column"
+  });
+
+  return legendEl;
+};
+
 const normalizeXCategory = function (data) {
   // 1. Turn a single number value into an array
   if (typeof data === 'number') {
@@ -379,6 +426,7 @@ const normalizeXCategory = function (data) {
       obj[idx] = value;
       return obj;
     }, {});
+    displayLegend = false;
   }
 
   // 3. Turn the value of each category into an object with a value property
@@ -432,6 +480,7 @@ const drawBarChart = function (data, options, element) {
   // Extract options
   let elementOptions = extractElementProperties(options);
   let elementProperties = Object.assign(elementDefaults, elementOptions);
+  let legendColors = options.barColor;
 
   let titleHeight = 0;
   if (options.title) {
@@ -448,6 +497,8 @@ const drawBarChart = function (data, options, element) {
 
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
   element.append(drawChart(chartHeight, data, scale, tickInterval, options));
+
+  if (displayLegend) { element.append(drawLegend(data, legendColors)); }
 
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
