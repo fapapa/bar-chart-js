@@ -222,6 +222,7 @@ let hideTickArea = function () {
   chartDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
+// Adapted from https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling
 let bestTick = function (maxValue, mostTicks) {
   let tick;
   const minInterval = maxValue / mostTicks;
