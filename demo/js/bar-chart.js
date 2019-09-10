@@ -117,13 +117,13 @@ let extractElementProperties = function (options) {
 };
 
 let drawBar = function (barData, options) {
-  let bar = barData.reduce(function (htmlBar, dataObj, idx) {
+  let bar = Object.keys(barData).reduce(function (htmlBar, category, idx) {
     let barSection = $("<div class='bar-section'></div>");
-    let label = $("<div class='value'>" + dataObj.value + "</div>");
+    let label = $("<div class='value'>" + barData[category].value + "</div>");
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
     }
-    if (idx == barData.length - 1) {
+    if (idx == Object.keys(barData).length - 1) {
       barSectionProperties["border-top-left-radius"] = "4px";
       barSectionProperties["border-top-right-radius"] = "4px";
     } else {
@@ -132,7 +132,7 @@ let drawBar = function (barData, options) {
     }
 
     barSection.css(Object.assign(barSectionProperties,
-                                 {"height": dataObj.height + "%"}));
+                                 {"height": barData[category].height}));
     label.css(valueProperties);
     barSection.append(label);
 
@@ -296,15 +296,10 @@ const drawGraph = function (data, scale, options, barOptions) {
 
   // Get each value's percentage of the scale
   for (let category in data) {
-    data[category] = data[category].reduce(function (arr, val) {
-      let obj = {};
-
-      obj.value = val;
-      obj.height = val / scale * 100;
-      arr.push(obj);
-
-      return arr;
-    }, []);
+    for (let sectionCategory in data[category]) {
+      let height = data[category][sectionCategory].value / scale * 100;
+      data[category][sectionCategory].height = height + "%";
+    }
   }
 
   // Create and add each data item as a bar on the graph
@@ -371,11 +366,34 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
-const normalize = function (data) {
-  // Turn array into a chart data object
+const normalizeXCategory = function (data) {
+  // 1. Turn a single number value into an array
+  if (typeof data === 'number') {
+    data = [ data ];
+  }
+
+  // 2. Turn an array into an object with the indexes as the property names
   if (Array.isArray(data)) {
-    data = data.reduce(function (obj, value) {
-      obj[value.toString()] = value;
+    // [ 1, 2, 3 ] => { 0: 1, 1: 2, 2: 3 }
+    data = data.reduce(function (obj, value, idx) {
+      obj[idx] = value;
+      return obj;
+    }, {});
+  }
+
+  // 3. Turn the value of each category into an object with a value property
+  for (let category in data) {
+    data[category] = { value: data[category] };
+  }
+
+  return data;
+};
+
+const normalize = function (data) {
+  // Turn array into an object with categories as properties
+  if (Array.isArray(data)) {
+    data = data.reduce(function (obj, value, idx) {
+      obj[idx] = value;
       return obj;
     }, {});
   }
@@ -383,7 +401,7 @@ const normalize = function (data) {
   // Ensure each category value is represented as an array, even if it only
   // contains a single value
   for (let category in data) {
-    if (!Array.isArray(data[category])) { data[category] = [ data[category] ] }
+    data[category] = normalizeXCategory(data[category]);
   }
 
   return data;
@@ -393,11 +411,9 @@ const getMaxFor = function (data) {
   // TODO: What if the data includes negative numbers?
   let max = 0;
   for (let category in data) {
-    let categorySum;
-
-    categorySum = data[category].reduce(function (sum, num) {
-      return sum + num;
-    });
+    let categorySum = Object.values(data[category]).reduce(function (sum, num) {
+      return sum + num.value;
+    }, 0);
 
     max = categorySum > max ? categorySum : max;
   }
