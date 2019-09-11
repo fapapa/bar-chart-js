@@ -127,7 +127,7 @@ let extractElementProperties = function (options) {
 let drawBar = function (barData, options) {
   let bar = Object.keys(barData).reduce(function (htmlBar, category, idx) {
     let barSection = $("<div class='bar-section'></div>");
-    let label = $("<div class='value'>" + barData[category].value + "</div>");
+    let label = $("<div class='value'>" + barData[category].value.toLocaleString() + "</div>");
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
     }
