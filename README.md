@@ -107,3 +107,13 @@ drawBarChart({
   barColor: [ "red", "green", "blue" ]
 }, $("#my-bar-chart"));
 ```
+
+## Known issues
+
+Known issues for this library are as follows:
+
+* Value labels (which must be drawn) appear to overflow onto other content when
+  the bar/bar-section is too small to contain it
+* Negative values cannot be plotted
+* When no x-axis categories are supplied, the values are used as x-axis labels,
+  sometimes yielding undesirable results, and this cannot be turned off
