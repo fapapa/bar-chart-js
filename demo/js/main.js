@@ -23,3 +23,19 @@ drawBarChart({
   barColor: [ "#ace", "#eac", "#cea", "#cae" ],
   legendPosition: { top: "2em", right: "100px" }
 }, $("#stacked-extra"));
+
+drawBarChart({
+  "Sunday": { "Apples": 1, "Oranges": 1, "Bananas": 2 },
+  "Monday": { "Apples": 1, "Oranges": 2, "Bananas": 3 },
+  "Tuesday": { "Apples": 2, "Oranges": 3, "Bananas": 5 },
+  "Wednesday": { "Apples": 3, "Oranges": 5, "Bananas": 8 },
+  "Thursday": { "Apples": 5, "Oranges": 8, "Bananas": 13 },
+  "Friday": { "Apples": 8, "Oranges": 13, "Bananas": 21 },
+  "Saturday": { "Apples": 13, "Oranges": 21, "Bananas": 34 }
+}, {
+  title: "Fibbonaci's Fruit",
+  barSpacing: "20px",
+  barColor: [ "#f00", "#f90", "#ff0" ],
+  valueLabelColor: "#555",
+  legendPosition: { bottom: "250px", left: "300px", top: undefined }
+}, $("#fibb"));
