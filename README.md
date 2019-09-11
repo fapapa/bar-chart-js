@@ -117,3 +117,11 @@ Known issues for this library are as follows:
 * Negative values cannot be plotted
 * When no x-axis categories are supplied, the values are used as x-axis labels,
   sometimes yielding undesirable results, and this cannot be turned off
+
+## Attribution
+
+The algorithm to determine the optimal tick-mark interval (which is then used to
+determine the scale of the chart) is adapted from Mark Ransom's reply to [this
+StackOverflow
+thread](https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling).
+Many thanks to Mark!
