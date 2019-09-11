@@ -37,6 +37,8 @@ drawBarChart({
   "Saturday": { "Apples": 13, "Oranges": 21, "Bananas": 34 }
 }, {
   title: "Fibbonaci's Fruit",
+  width: "800px",
+  height: "500px",
   barSpacing: "20px",
   barColor: [ "#f00", "#f90", "#ff0" ],
   valueLabelColor: "#555",
