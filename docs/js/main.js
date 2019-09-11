@@ -17,11 +17,14 @@ drawBarChart({
   "Southwest": { "Qtr 1": 2851432, "Qtr 2": 3571335, "Qtr 3": 1932932, "Qtr 4": 1653192 }
 }, {
   title: "Sales by Division and by Quarter&mdash;2018",
+  width: "550px",
+  height: "400px",
   yAxisName: "Dollars (CAD)",
   xAxisName: "Division",
   showTicks: true,
+  barSpacing: "10px",
   barColor: [ "#ace", "#eac", "#cea", "#cae" ],
-  legendPosition: { top: "2em", right: "100px" }
+  legendPosition: { bottom: "50px", right: "-60px" }
 }, $("#stacked-extra"));
 
 drawBarChart({
@@ -34,6 +37,8 @@ drawBarChart({
   "Saturday": { "Apples": 13, "Oranges": 21, "Bananas": 34 }
 }, {
   title: "Fibbonaci's Fruit",
+  width: "800px",
+  height: "500px",
   barSpacing: "20px",
   barColor: [ "#f00", "#f90", "#ff0" ],
   valueLabelColor: "#555",
