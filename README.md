@@ -69,6 +69,15 @@ into.
 
 ### Examples
 
+Here is an example of what you can achieve with this library:
+
+![Example: Fibbonaci's Fruit Chart drawn with this library](assets/example-fibb-fruit.jpg)
+
+To draw the chart of your dreams, simply copy /docs/js/bar-chart.js from this
+repository to your project, link it into your page, and call the `drawBarchart`
+function like in the examples below, using the parameters and options detailed
+above!
+
 Draws a standard bar chart, specifies a height of 500 pixels, and places the bar
 labels at the bottom of each bar:
 
