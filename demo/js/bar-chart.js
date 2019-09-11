@@ -1,4 +1,5 @@
 let elementDefaults = {
+  "position": "relative",
   "width": "500px",
   "height": "300px"
 };
@@ -16,7 +17,6 @@ let graphDefaults = {
   "justify-content": "space-evenly",
   "align-items": "flex-end",
   "height": "100%",
-  "border-left": "1px solid black",
   "border-bottom": "1px solid black"
 };
 
@@ -33,8 +33,7 @@ let barSectionProperties = {
   "justify-content": "center",
   "width": "100%",
   "box-sizing": "border-box",
-  "background-color": "blue",
-  "border": "1px solid black"
+  "background-color": "blue"
 }
 
 let valueProperties = {
@@ -42,6 +41,14 @@ let valueProperties = {
   "color": "white",
   "font-family": "Helvetica, Georgia, sans-serif"
 };
+
+let legendDefaults = {
+  "position": "absolute",
+  "display": "flex",
+  "flex-direction": "column"
+};
+
+let displayLegend = true;
 
 let extractBarOptions = function (options) {
   let barOptions = {};
@@ -69,7 +76,7 @@ let extractBarOptions = function (options) {
     if (Array.isArray(options.barColor)) {
       barOptions.colors = options.barColor;
     } else {
-      barOptions["background-color"] = options.barColor;
+      barOptions.colors = [ options.barColor ];
     }
     delete options.barColor;
   }
@@ -118,15 +125,22 @@ let extractElementProperties = function (options) {
 };
 
 let drawBar = function (barData, options) {
-  let bar = barData.reduce(function (htmlBar, dataObj, idx) {
+  let bar = Object.keys(barData).reduce(function (htmlBar, category, idx) {
     let barSection = $("<div class='bar-section'></div>");
-    let label = $("<div class='value'>" + dataObj.value + "</div>");
+    let label = $("<div class='value'>" + barData[category].value + "</div>");
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
     }
+    if (idx == Object.keys(barData).length - 1) {
+      barSectionProperties["border-top-left-radius"] = "4px";
+      barSectionProperties["border-top-right-radius"] = "4px";
+    } else {
+      delete barSectionProperties["border-top-left-radius"];
+      delete barSectionProperties["border-top-right-radius"];
+    }
 
     barSection.css(Object.assign(barSectionProperties,
-                                 {"height": dataObj.height + "%"}));
+                                 {"height": barData[category].height}));
     label.css(valueProperties);
     barSection.append(label);
 
@@ -134,8 +148,8 @@ let drawBar = function (barData, options) {
     return htmlBar;
   }, $("<div class='bar'></div>"));
 
-  bar.css(Object.assign(Object.assign(
-    barProperties, options, {"height": "100%"})));
+  bar.css(Object.assign(
+    barProperties, options, {"height": "0"}));
 
   return bar;
 };
@@ -213,6 +227,7 @@ let hideTickArea = function () {
   chartDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
+// Adapted from https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling
 let bestTick = function (maxValue, mostTicks) {
   let tick;
   const minInterval = maxValue / mostTicks;
@@ -290,15 +305,10 @@ const drawGraph = function (data, scale, options, barOptions) {
 
   // Get each value's percentage of the scale
   for (let category in data) {
-    data[category] = data[category].reduce(function (arr, val) {
-      let obj = {};
-
-      obj.value = val;
-      obj.height = val / scale * 100;
-      arr.push(obj);
-
-      return arr;
-    }, []);
+    for (let sectionCategory in data[category]) {
+      let height = data[category][sectionCategory].value / scale * 100;
+      data[category][sectionCategory].height = height + "%";
+    }
   }
 
   // Create and add each data item as a bar on the graph
@@ -308,6 +318,7 @@ const drawGraph = function (data, scale, options, barOptions) {
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
+  if (options.showTicks) { graph.css("border-left", "1px solid black") }
 
   return graph;
 };
@@ -322,7 +333,7 @@ const drawYAxisElements = function (yAxis, scale, tickInterval, options) {
     name = createYAxis(yAxis);
   }
 
-  options = Object.assign({showTicks: true}, options)
+  options = Object.assign({showTicks: false}, options)
   if (options.showTicks) {
     ticks = generateTicks(intervalHeight, scale, tickInterval);
     tickValues = generateTickValues(intervalHeight, scale, tickInterval);
@@ -365,11 +376,77 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
-const normalize = function (data) {
-  // Turn array into a chart data object
+const drawLegend = function (data, legendOptions) {
+  let legendEl = $("<aside class='legend'></aside>")
+  let legendData = {};
+
+  for (let xCat in data) {
+    let xCatData = Object.keys(data[xCat]).reduce(function (obj, category, idx) {
+      obj[category] = legendOptions.barColor[idx];
+      return obj;
+    }, {});
+    Object.assign(legendData, xCatData);
+  }
+
+  for (let item in legendData) {
+    let legendItem = $("<div class='legend-item'></div>");
+    let swatch = $("<div class'swatch'></div>");
+    swatch.css({
+      "height": "1em",
+      "width": "1em",
+      "float": "left",
+      "background-color": legendData[item]
+    });
+    legendItem.append(swatch);
+    let label = $("<div class='label'>" + item + "</div>")
+    label.css({
+      "padding-left": "1.5em",
+      "font-size": "0.8em"
+    });
+    legendItem.append(label);
+    legendEl.append(legendItem);
+  }
+
+  legendOptions.legendPosition = legendOptions.legendPosition || {
+    top: "0",
+    left: "30px"
+  };
+  legendEl.css(Object.assign(legendDefaults, legendOptions.legendPosition));
+
+  return legendEl;
+};
+
+const normalizeXCategory = function (data) {
+  // 1. Turn a single number value into an array
+  if (typeof data === 'number') {
+    data = [ data ];
+  }
+
+  // 2. Turn an array into an object with the indexes as the property names
   if (Array.isArray(data)) {
-    data = data.reduce(function (obj, value) {
-      obj[value.toString()] = value;
+    // [ 1, 2, 3 ] => { 0: 1, 1: 2, 2: 3 }
+    data = data.reduce(function (obj, value, idx) {
+      obj[idx] = value;
+      return obj;
+    }, {});
+    displayLegend = false;
+  } else {
+    displayLegend = true;
+  }
+
+  // 3. Turn the value of each category into an object with a value property
+  for (let category in data) {
+    data[category] = { value: data[category] };
+  }
+
+  return data;
+};
+
+const normalize = function (data) {
+  // Turn array into an object with categories as properties
+  if (Array.isArray(data)) {
+    data = data.reduce(function (obj, value, idx) {
+      obj[idx] = value;
       return obj;
     }, {});
   }
@@ -377,7 +454,7 @@ const normalize = function (data) {
   // Ensure each category value is represented as an array, even if it only
   // contains a single value
   for (let category in data) {
-    if (!Array.isArray(data[category])) { data[category] = [ data[category] ] }
+    data[category] = normalizeXCategory(data[category]);
   }
 
   return data;
@@ -387,11 +464,9 @@ const getMaxFor = function (data) {
   // TODO: What if the data includes negative numbers?
   let max = 0;
   for (let category in data) {
-    let categorySum;
-
-    categorySum = data[category].reduce(function (sum, num) {
-      return sum + num;
-    });
+    let categorySum = Object.values(data[category]).reduce(function (sum, num) {
+      return sum + num.value;
+    }, 0);
 
     max = categorySum > max ? categorySum : max;
   }
@@ -410,6 +485,10 @@ const drawBarChart = function (data, options, element) {
   // Extract options
   let elementOptions = extractElementProperties(options);
   let elementProperties = Object.assign(elementDefaults, elementOptions);
+  let legendOptions = ["barColor", "legendPosition"].reduce(function (obj, property) {
+    obj[property] = options[property];
+    return obj;
+  }, {});
 
   let titleHeight = 0;
   if (options.title) {
@@ -427,6 +506,11 @@ const drawBarChart = function (data, options, element) {
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
   element.append(drawChart(chartHeight, data, scale, tickInterval, options));
 
+  if (displayLegend) { element.append(drawLegend(data, legendOptions)); }
+
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
+
+  // Animate the bars
+  $(".bar").animate({height: "100%"}, 333 /* Third of a second */);
 };

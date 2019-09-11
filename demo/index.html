@@ -9,6 +9,7 @@
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/custom.css">
 
   <meta name="theme-color" content="#fafafa">
 </head>
@@ -22,8 +23,37 @@
     </p>
   <![endif]-->
 
-  <h1>Charty McChart Face</h1>
-  <div id="my-bar-chart"></div>
+  <h1>Javascript Chart Generator &mdash; Demo</h1>
+
+  <div class="example">
+    <p class="description">
+      A standard bar chart with no options passed in. As basic as they get!
+    </p>
+    <div id="basic"></div>
+  </div>
+
+  <div class="example">
+    <p class="description">
+      Same data as the chart above, but with some options passed in to customize
+      exactly what it looks like.
+    </p>
+    <div id="options"></div>
+  </div>
+
+  <div class="example">
+    <p class="description">
+      This chart shows a stacked bar chart, with many options set to show the
+      power of this library.
+    </p>
+    <div id="stacked-extra"></div>
+  </div>
+
+  <div class="example">
+    <p class="description">
+      This last example shows a minimal stacked bar chart.
+    </p>
+    <div id="fibb"></div>
+  </div>
 
   <script src="js/vendor/modernizr-3.7.1.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
