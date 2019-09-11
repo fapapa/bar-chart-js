@@ -430,6 +430,8 @@ const normalizeXCategory = function (data) {
       return obj;
     }, {});
     displayLegend = false;
+  } else {
+    displayLegend = true;
   }
 
   // 3. Turn the value of each category into an object with a value property
