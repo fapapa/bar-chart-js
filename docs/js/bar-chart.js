@@ -1,54 +1,59 @@
-let elementDefaults = {
-  "position": "relative",
-  "width": "500px",
-  "height": "300px"
+let elementDefaults, chartDefaults, graphDefaults, barProperties,
+    barSectionProperties, valueProperties, legendDefaults, displayLegend;
+
+const reset = function () {
+  elementDefaults = {
+    "position": "relative",
+    "width": "500px",
+    "height": "300px"
+  };
+
+  chartDefaults = {
+    "display": "grid",
+    "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
+    "grid-template-rows": "auto 0 0",
+    "grid-template-columns": "0 20px 5px auto"
+  };
+
+  graphDefaults = {
+    "display": "flex",
+    "grid-area": "graph",
+    "justify-content": "space-evenly",
+    "align-items": "flex-end",
+    "height": "100%",
+    "border-bottom": "1px solid black"
+  };
+
+  barProperties = {
+    "display": "flex",
+    "flex-direction": "column-reverse",
+    "align-items": "end",
+    "box-sizing": "border-box",
+    "width": "100%"
+  };
+
+  barSectionProperties = {
+    "display": "flex",
+    "justify-content": "center",
+    "width": "100%",
+    "box-sizing": "border-box",
+    "background-color": "blue"
+  }
+
+  valueProperties = {
+    "padding": "5px",
+    "color": "white",
+    "font-family": "Helvetica, Georgia, sans-serif"
+  };
+
+  legendDefaults = {
+    "position": "absolute",
+    "display": "flex",
+    "flex-direction": "column"
+  };
+
+  displayLegend = true;
 };
-
-let chartDefaults = {
-  "display": "grid",
-  "grid-template-areas": "'y-axis tick-values tick-marks graph' 'empty empty empty labels' 'empty empty empty x-axis'",
-  "grid-template-rows": "auto 0 0",
-  "grid-template-columns": "0 20px 5px auto"
-};
-
-let graphDefaults = {
-  "display": "flex",
-  "grid-area": "graph",
-  "justify-content": "space-evenly",
-  "align-items": "flex-end",
-  "height": "100%",
-  "border-bottom": "1px solid black"
-};
-
-let barProperties = {
-  "display": "flex",
-  "flex-direction": "column-reverse",
-  "align-items": "end",
-  "box-sizing": "border-box",
-  "width": "100%"
-};
-
-let barSectionProperties = {
-  "display": "flex",
-  "justify-content": "center",
-  "width": "100%",
-  "box-sizing": "border-box",
-  "background-color": "blue"
-}
-
-let valueProperties = {
-  "padding": "5px",
-  "color": "white",
-  "font-family": "Helvetica, Georgia, sans-serif"
-};
-
-let legendDefaults = {
-  "position": "absolute",
-  "display": "flex",
-  "flex-direction": "column"
-};
-
-let displayLegend = true;
 
 let extractBarOptions = function (options) {
   let barOptions = {};
@@ -127,7 +132,7 @@ let extractElementProperties = function (options) {
 let drawBar = function (barData, options) {
   let bar = Object.keys(barData).reduce(function (htmlBar, category, idx) {
     let barSection = $("<div class='bar-section'></div>");
-    let label = $("<div class='value'>" + barData[category].value + "</div>");
+    let label = $("<div class='value'>" + barData[category].value.toLocaleString() + "</div>");
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
     }
@@ -474,6 +479,10 @@ const getMaxFor = function (data) {
 };
 
 const drawBarChart = function (data, options, element) {
+  // When drawing multiple charts on a single page, reset all of the original
+  // settings for each chart so that settings from one do not affect the other
+  reset();
+
   // Normalize the data
   data = normalize(data);
 

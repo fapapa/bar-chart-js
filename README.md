@@ -69,6 +69,15 @@ into.
 
 ### Examples
 
+Here is an example of what you can achieve with this library:
+
+![Example: Fibbonaci's Fruit Chart drawn with this library](assets/example-fibb-fruit.jpg)
+
+To draw the chart of your dreams, simply copy /docs/js/bar-chart.js from this
+repository to your project, link it into your page, and call the `drawBarchart`
+function like in the examples below, using the parameters and options detailed
+above!
+
 Draws a standard bar chart, specifies a height of 500 pixels, and places the bar
 labels at the bottom of each bar:
 
@@ -98,3 +107,21 @@ drawBarChart({
   barColor: [ "red", "green", "blue" ]
 }, $("#my-bar-chart"));
 ```
+
+## Known issues
+
+Known issues for this library are as follows:
+
+* Value labels (which must be drawn) appear to overflow onto other content when
+  the bar/bar-section is too small to contain it
+* Negative values cannot be plotted
+* When no x-axis categories are supplied, the values are used as x-axis labels,
+  sometimes yielding undesirable results, and this cannot be turned off
+
+## Attribution
+
+The algorithm to determine the optimal tick-mark interval (which is then used to
+determine the scale of the chart) is adapted from Mark Ransom's reply to [this
+StackOverflow
+thread](https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling).
+Many thanks to Mark!
