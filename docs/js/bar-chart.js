@@ -127,9 +127,9 @@ let extractElementProperties = function (options) {
 };
 
 let extractLegendOptions = function (options) {
-  return ["barColor", "legendPosition"].reduce(function (obj, property) {
-    obj[property] = options[property];
-    return obj;
+  return ["barColor", "legendPosition"].reduce(function (legendOptions, property) {
+    legendOptions[property] = options[property];
+    return legendOptions;
   }, {});
 };
 
