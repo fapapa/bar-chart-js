@@ -129,6 +129,13 @@ let extractElementProperties = function (options) {
   return elementOptions;
 };
 
+let extractLegendOptions = function (options) {
+  return ["barColor", "legendPosition"].reduce(function (obj, property) {
+    obj[property] = options[property];
+    return obj;
+  }, {});
+};
+
 let drawBar = function (barData, options) {
   let bar = Object.keys(barData).reduce(function (htmlBar, category, idx) {
     let barSection = $("<div class='bar-section'></div>");
@@ -494,10 +501,7 @@ const drawBarChart = function (data, options, element) {
   // Extract options
   let elementOptions = extractElementProperties(options);
   let elementProperties = Object.assign(elementDefaults, elementOptions);
-  let legendOptions = ["barColor", "legendPosition"].reduce(function (obj, property) {
-    obj[property] = options[property];
-    return obj;
-  }, {});
+  let legendOptions = extractLegendOptions(options);
 
   let titleHeight = 0;
   if (options.title) {
