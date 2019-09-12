@@ -501,12 +501,14 @@ const drawBarChart = function (data, options, element) {
   // settings for each chart so that settings from one do not affect the other
   reset();
 
-  // Normalize the data
+  // Get the data into the format that can be used by the rest of the code
   data = normalize(data);
 
-  // Determine scale
-  const max = getMaxFor(data);
-  const tickInterval = bestTick(max, 8);
+  // Determine the scale of the chart
+  const max = getMaxFor(data); // Get largest of all bar values
+  const tickInterval = bestTick(max, 8); // =< 8 ticks looks best to my eyes
+  // Based on the largest value to plot, and the tick interval we calculated,
+  // what is the scale of the chart
   const scale = Math.ceil(max / tickInterval) * tickInterval;
 
   // Extract options
@@ -514,6 +516,9 @@ const drawBarChart = function (data, options, element) {
   let elementProperties = Object.assign(elementDefaults, elementOptions);
   let legendOptions = extractLegendOptions(options);
 
+  // The total height of the passed in element needs to be the default 300px or
+  // the height passed in from the options, so the graph needs to be the total
+  // height of the chart element minus the height of the title
   let titleHeight = 0;
   if (options.title) {
     element.append(drawTitle(options.title, options.titleSize, options.titleColor));
