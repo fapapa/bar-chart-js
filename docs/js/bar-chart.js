@@ -428,6 +428,17 @@ const drawLegend = function (data, legendOptions) {
   return legendEl;
 };
 
+const drawTitle = function (title, fontSize, color) {
+  let titleEl = $("<header class='title'><h1>" + title + "</h1></header>");
+
+  $("h1", titleEl).css({
+    "font-size": fontSize || undefined,
+    "color": color || undefined
+  });
+
+  return titleEl;
+};
+
 const normalizeXCategory = function (data) {
   // 1. Turn a single number value into an array
   if (typeof data === 'number') {
@@ -505,15 +516,11 @@ const drawBarChart = function (data, options, element) {
 
   let titleHeight = 0;
   if (options.title) {
-    let titleEl = $("<header class='title'><h1>" + options.title + "</h1></header>");
-    let titleSize = options.titleSize || "";
-    let titleColor = options.titleColor || "";
-    element.append(titleEl);
-    titleEl.css({ "font-size": titleSize, "color": titleColor });
+    element.append(drawTitle(options.title, options.titleSize, options.titleColor));
 
-    let h1 = $("h1", titleEl);
-    titleHeight = h1.outerHeight(true);
-    titleHeight -= parseInt(h1.css("margin-top"));
+    let header = $("header", element);
+    titleHeight = header.outerHeight(true);
+    titleHeight -= parseInt(header.css("margin-top"));
   }
 
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
