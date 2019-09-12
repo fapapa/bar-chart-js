@@ -457,7 +457,8 @@ const normalizeXCategory = function (data) {
     displayLegend = true;
   }
 
-  // 3. Turn the value of each category into an object with a value property
+  // 3. Turn the value of each category into an object with a value property (we
+  // will later add a height property alongside the value property)
   for (let category in data) {
     data[category] = { value: data[category] };
   }
@@ -474,7 +475,7 @@ const normalize = function (data) {
     }, {});
   }
 
-  // Ensure each category value is represented as an array, even if it only
+  // Ensure each category value is represented as an object, even if it only
   // contains a single value
   for (let category in data) {
     data[category] = normalizeXCategory(data[category]);
