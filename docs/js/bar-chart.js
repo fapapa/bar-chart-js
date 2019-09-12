@@ -486,10 +486,11 @@ const getMaxFor = function (data) {
   // TODO: What if the data includes negative numbers?
   let max = 0;
   for (let category in data) {
+    // Get the sum of all the values in this bar's data...
     let categorySum = Object.values(data[category]).reduce(function (sum, num) {
       return sum + num.value;
     }, 0);
-
+    // ... and see if it's the biggest so far
     max = categorySum > max ? categorySum : max;
   }
   return max;
