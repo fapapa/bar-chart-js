@@ -242,7 +242,9 @@ let hideTickArea = function () {
 // Adapted from https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling
 let bestTick = function (maxValue, mostTicks) {
   let tick;
+  // Get the smallest interval possible given the max and the most ticks allowed
   const minInterval = maxValue / mostTicks;
+  // Get the magnitude of the smallest interval
   const magnitude = Math.pow(10, Math.floor(Math.log10(minInterval)));
   const residual = minInterval / magnitude;
 
