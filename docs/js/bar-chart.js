@@ -117,16 +117,13 @@ let extractYAxis = function (options) {
 };
 
 let extractElementProperties = function (options) {
-  let elementOptions = {};
-
-  [ "width", "height" ].forEach(function (prop) {
+  return [ "width", "height" ].reduce(function (elementOptions, prop) {
     if (options[prop]) {
       elementOptions[prop] = options[prop];
       delete options[prop];
+      return elementOptions;
     }
-  });
-
-  return elementOptions;
+  }, {});
 };
 
 let extractLegendOptions = function (options) {
