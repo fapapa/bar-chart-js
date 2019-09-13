@@ -42,5 +42,5 @@ drawBarChart({
   barSpacing: "20px",
   barColor: [ "#f00", "#f90", "#ff0" ],
   valueLabelColor: "#555",
-  legendPosition: { bottom: "250px", left: "300px", top: undefined }
+  legendPosition: { bottom: "250px", left: "300px" }
 }, $("#fibb"));
