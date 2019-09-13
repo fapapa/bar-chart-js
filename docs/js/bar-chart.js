@@ -312,8 +312,6 @@ const generateTickValues = function (intervalHeight, scale, tickInterval) {
 };
 
 const drawGraph = function (data, scale, options, barOptions) {
-  let graph = $("<div class='graph'></div>");
-
   // Get each value's percentage of the scale
   for (let category in data) {
     for (let sectionCategory in data[category]) {
@@ -323,9 +321,10 @@ const drawGraph = function (data, scale, options, barOptions) {
   }
 
   // Create and add each data item as a bar on the graph
-  for (let category in data) {
-    graph.append(drawBar(data[category], barOptions));
-  }
+  let graph = Object.keys(data).reduce(function (el, category) {
+    el.append(drawBar(data[category], barOptions));
+    return el
+  }, $("<div class='graph'></div>"))
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
