@@ -1,7 +1,7 @@
 let elementDefaults, chartDefaults, graphDefaults, barProperties,
     barSectionProperties, valueProperties, legendDefaults, displayLegend;
 
-const reset = function () {
+const reset = () => {
   elementDefaults = {
     "position": "relative",
     "width": "500px",
@@ -55,7 +55,7 @@ const reset = function () {
   displayLegend = true;
 };
 
-let extractBarOptions = function (options) {
+let extractBarOptions = (options) => {
   let barOptions = {};
 
   switch (options.valueLabelPosition) {
@@ -94,7 +94,7 @@ let extractBarOptions = function (options) {
   return barOptions;
 };
 
-let extractXAxis = function (options) {
+let extractXAxis = (options) => {
   let xAxis;
 
   if (options.xAxisName) {
@@ -105,7 +105,7 @@ let extractXAxis = function (options) {
   return xAxis;
 };
 
-let extractYAxis = function (options) {
+let extractYAxis = (options) => {
   let yAxis;
 
   if (options.yAxisName) {
@@ -116,8 +116,8 @@ let extractYAxis = function (options) {
   return yAxis;
 };
 
-let extractElementProperties = function (options) {
-  return [ "width", "height" ].reduce(function (elementOptions, prop) {
+let extractElementProperties = (options) => {
+  return [ "width", "height" ].reduce((elementOptions, prop) => {
     if (options[prop]) {
       elementOptions[prop] = options[prop];
       delete options[prop];
@@ -126,15 +126,15 @@ let extractElementProperties = function (options) {
   }, {});
 };
 
-let extractLegendOptions = function (options) {
-  return ["barColor", "legendPosition"].reduce(function (legendOptions, property) {
+let extractLegendOptions = (options) => {
+  return ["barColor", "legendPosition"].reduce((legendOptions, property) => {
     legendOptions[property] = options[property];
     return legendOptions;
   }, {});
 };
 
-let drawBar = function (barData, options) {
-  let bar = Object.keys(barData).reduce(function (htmlBar, category, idx) {
+let drawBar = (barData, options) => {
+  let bar = Object.keys(barData).reduce((htmlBar, category, idx) => {
     let barSection = $("<div class='bar-section'></div>");
     let label = $("<div class='value'>" + barData[category].value.toLocaleString() + "</div>");
     if (options.colors) {
@@ -163,7 +163,7 @@ let drawBar = function (barData, options) {
   return bar;
 };
 
-let createXAxis = function (xAxis) {
+let createXAxis = (xAxis) => {
   let title = $("<div class='x-axis'>" + xAxis + "</div>");
 
   title.css({
@@ -174,7 +174,7 @@ let createXAxis = function (xAxis) {
   return title;
 };
 
-let createYAxis = function (yAxis) {
+let createYAxis = (yAxis) => {
   let title = $("<div class='y-axis'>" + yAxis + "</div>");
 
   title.css({
@@ -187,11 +187,11 @@ let createYAxis = function (yAxis) {
   return title
 };
 
-let createLabels = function (labels, barOptions) {
+let createLabels = (labels, barOptions) => {
   // TODO: if a simple array is passed in as data to the drawBarChart method,
   // don't show the labels as they are just made-up ones used to normalize the
   // data structure
-  let labelEl = labels.reduce(function (htmlLabel, label) {
+  let labelEl = labels.reduce((htmlLabel, label) => {
     htmlLabel.append($("<div>" + label + "</div>").css({
       "flex": "1 1 " + 100 / labels.length + "%",
       "padding-right": barOptions["margin-left"],
@@ -211,25 +211,25 @@ let createLabels = function (labels, barOptions) {
   return labelEl;
 };
 
-let showLabelArea = function () {
+let showLabelArea = () => {
   let gridRowHeights = chartDefaults['grid-template-rows'].split(' ');
   gridRowHeights[1] = "1.375em";
   chartDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
-let showXAxisArea = function () {
+let showXAxisArea = () => {
   let gridRowHeights = chartDefaults['grid-template-rows'].split(' ');
   gridRowHeights[2] = "1.375em";
   chartDefaults['grid-template-rows'] = gridRowHeights.join(' ');
 };
 
-let showYAxisArea = function () {
+let showYAxisArea = () => {
   let gridColumnWidths = chartDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[0] = "1.375em";
   chartDefaults['grid-template-columns'] = gridColumnWidths.join(' ');
 };
 
-let hideTickArea = function () {
+let hideTickArea = () => {
   let gridColumnWidths = chartDefaults['grid-template-columns'].split(' ');
   gridColumnWidths[1] = 0;
   gridColumnWidths[2] = 0;
@@ -237,7 +237,7 @@ let hideTickArea = function () {
 };
 
 // Adapted from https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling
-let bestTick = function (maxValue, mostTicks) {
+let bestTick = (maxValue, mostTicks) => {
   let tick;
   // Get the smallest interval possible given the max and the most ticks allowed
   const minInterval = maxValue / mostTicks;
@@ -258,7 +258,7 @@ let bestTick = function (maxValue, mostTicks) {
   return tick;
 };
 
-const generateTicks = function (intervalHeight, scale, tickInterval) {
+const generateTicks = (intervalHeight, scale, tickInterval) => {
   const ticks = scale / tickInterval;
   let tickContainer = $("<div class='ticks'></div>");
 
@@ -278,7 +278,7 @@ const generateTicks = function (intervalHeight, scale, tickInterval) {
   return tickContainer;
 };
 
-const generateTickValues = function (intervalHeight, scale, tickInterval) {
+const generateTickValues = (intervalHeight, scale, tickInterval) => {
   let widestTickVal = $("<span id='del'>" + scale.toLocaleString() + "</span>");
   widestTickVal.css({
     "visibility": "none",
@@ -311,7 +311,7 @@ const generateTickValues = function (intervalHeight, scale, tickInterval) {
   return tickValueContainer;
 };
 
-const drawGraph = function (data, scale, options, barOptions) {
+const drawGraph = (data, scale, options, barOptions) => {
   // Get each value's percentage of the scale
   for (let category in data) {
     for (let sectionCategory in data[category]) {
@@ -321,7 +321,7 @@ const drawGraph = function (data, scale, options, barOptions) {
   }
 
   // Create and add each data item as a bar on the graph
-  let graph = Object.keys(data).reduce(function (el, category) {
+  let graph = Object.keys(data).reduce((el, category) => {
     el.append(drawBar(data[category], barOptions));
     return el
   }, $("<div class='graph'></div>"))
@@ -333,7 +333,7 @@ const drawGraph = function (data, scale, options, barOptions) {
   return graph;
 };
 
-const drawYAxisElements = function (yAxis, scale, tickInterval, options) {
+const drawYAxisElements = (yAxis, scale, tickInterval, options) => {
   let name;
   let ticks, tickValues;
   const intervalHeight = tickInterval / scale * 100;
@@ -354,7 +354,7 @@ const drawYAxisElements = function (yAxis, scale, tickInterval, options) {
   return [name, tickValues, ticks];
 };
 
-const drawXAxisElements = function (xAxis, labels, barOptions) {
+const drawXAxisElements = (xAxis, labels, barOptions) => {
   let labelsElement;
   let xAxisName;
 
@@ -371,7 +371,7 @@ const drawXAxisElements = function (xAxis, labels, barOptions) {
   return [labelsElement, xAxisName];
 };
 
-const drawChart = function (height, data, scale, tickInterval, options) {
+const drawChart = (height, data, scale, tickInterval, options) => {
   let chart = $("<article class='chart'></article>");
   let barOptions = extractBarOptions(options);
   let xAxis, yAxis;
@@ -386,12 +386,12 @@ const drawChart = function (height, data, scale, tickInterval, options) {
   return chart;
 };
 
-const drawLegend = function (data, legendOptions) {
+const drawLegend = (data, legendOptions) => {
   let legendEl = $("<aside class='legend'></aside>")
   let legendData = {};
 
   for (let xCat in data) {
-    let xCatData = Object.keys(data[xCat]).reduce(function (obj, category, idx) {
+    let xCatData = Object.keys(data[xCat]).reduce((obj, category, idx) => {
       obj[category] = legendOptions.barColor[idx];
       return obj;
     }, {});
@@ -426,7 +426,7 @@ const drawLegend = function (data, legendOptions) {
   return legendEl;
 };
 
-const drawTitle = function (title, fontSize, color) {
+const drawTitle = (title, fontSize, color) => {
   let titleEl = $("<header class='title'><h1>" + title + "</h1></header>");
 
   $("h1", titleEl).css({
@@ -437,7 +437,7 @@ const drawTitle = function (title, fontSize, color) {
   return titleEl;
 };
 
-const normalizeXCategory = function (data) {
+const normalizeXCategory = (data) => {
   // 1. Turn a single number value into an array
   if (typeof data === 'number') {
     data = [ data ];
@@ -446,7 +446,7 @@ const normalizeXCategory = function (data) {
   // 2. Turn an array into an object with the indexes as the property names
   if (Array.isArray(data)) {
     // [ 1, 2, 3 ] => { 0: 1, 1: 2, 2: 3 }
-    data = data.reduce(function (obj, value, idx) {
+    data = data.reduce((obj, value, idx) => {
       obj[idx] = value;
       return obj;
     }, {});
@@ -462,10 +462,10 @@ const normalizeXCategory = function (data) {
   return data;
 };
 
-const normalize = function (data) {
+const normalize = (data) => {
   // Turn array into an object with categories as properties
   if (Array.isArray(data)) {
-    data = data.reduce(function (obj, value, idx) {
+    data = data.reduce((obj, value, idx) => {
       obj[idx] = value;
       return obj;
     }, {});
@@ -480,12 +480,12 @@ const normalize = function (data) {
   return data;
 };
 
-const getMaxFor = function (data) {
+const getMaxFor = (data) => {
   // TODO: What if the data includes negative numbers?
   let max = 0;
   for (let category in data) {
     // Get the sum of all the values in this bar's data...
-    let categorySum = Object.values(data[category]).reduce(function (sum, num) {
+    let categorySum = Object.values(data[category]).reduce((sum, num) => {
       return sum + num.value;
     }, 0);
     // ... and see if it's the biggest so far
@@ -494,7 +494,7 @@ const getMaxFor = function (data) {
   return max;
 };
 
-const drawBarChart = function (data, options, element) {
+const drawBarChart = (data, options, element) => {
   // When drawing multiple charts on a single page, reset all of the original
   // settings for each chart so that settings from one do not affect the other
   reset();
