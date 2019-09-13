@@ -117,16 +117,20 @@ let extractYAxis = function (options) {
 };
 
 let extractElementProperties = function (options) {
-  let elementOptions = {};
-
-  [ "width", "height" ].forEach(function (prop) {
+  return [ "width", "height" ].reduce(function (elementOptions, prop) {
     if (options[prop]) {
       elementOptions[prop] = options[prop];
       delete options[prop];
+      return elementOptions;
     }
-  });
+  }, {});
+};
 
-  return elementOptions;
+let extractLegendOptions = function (options) {
+  return ["barColor", "legendPosition"].reduce(function (legendOptions, property) {
+    legendOptions[property] = options[property];
+    return legendOptions;
+  }, {});
 };
 
 let drawBar = function (barData, options) {
@@ -235,7 +239,9 @@ let hideTickArea = function () {
 // Adapted from https://stackoverflow.com/questions/611878/reasonable-optimized-chart-scaling
 let bestTick = function (maxValue, mostTicks) {
   let tick;
+  // Get the smallest interval possible given the max and the most ticks allowed
   const minInterval = maxValue / mostTicks;
+  // Get the magnitude of the smallest interval
   const magnitude = Math.pow(10, Math.floor(Math.log10(minInterval)));
   const residual = minInterval / magnitude;
 
@@ -306,8 +312,6 @@ const generateTickValues = function (intervalHeight, scale, tickInterval) {
 };
 
 const drawGraph = function (data, scale, options, barOptions) {
-  let graph = $("<div class='graph'></div>");
-
   // Get each value's percentage of the scale
   for (let category in data) {
     for (let sectionCategory in data[category]) {
@@ -317,9 +321,10 @@ const drawGraph = function (data, scale, options, barOptions) {
   }
 
   // Create and add each data item as a bar on the graph
-  for (let category in data) {
-    graph.append(drawBar(data[category], barOptions));
-  }
+  let graph = Object.keys(data).reduce(function (el, category) {
+    el.append(drawBar(data[category], barOptions));
+    return el
+  }, $("<div class='graph'></div>"))
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
@@ -421,6 +426,17 @@ const drawLegend = function (data, legendOptions) {
   return legendEl;
 };
 
+const drawTitle = function (title, fontSize, color) {
+  let titleEl = $("<header class='title'><h1>" + title + "</h1></header>");
+
+  $("h1", titleEl).css({
+    "font-size": fontSize || undefined,
+    "color": color || undefined
+  });
+
+  return titleEl;
+};
+
 const normalizeXCategory = function (data) {
   // 1. Turn a single number value into an array
   if (typeof data === 'number') {
@@ -435,11 +451,10 @@ const normalizeXCategory = function (data) {
       return obj;
     }, {});
     displayLegend = false;
-  } else {
-    displayLegend = true;
   }
 
-  // 3. Turn the value of each category into an object with a value property
+  // 3. Turn the value of each category into an object with a value property (we
+  // will later add a height property alongside the value property)
   for (let category in data) {
     data[category] = { value: data[category] };
   }
@@ -456,7 +471,7 @@ const normalize = function (data) {
     }, {});
   }
 
-  // Ensure each category value is represented as an array, even if it only
+  // Ensure each category value is represented as an object, even if it only
   // contains a single value
   for (let category in data) {
     data[category] = normalizeXCategory(data[category]);
@@ -469,10 +484,11 @@ const getMaxFor = function (data) {
   // TODO: What if the data includes negative numbers?
   let max = 0;
   for (let category in data) {
+    // Get the sum of all the values in this bar's data...
     let categorySum = Object.values(data[category]).reduce(function (sum, num) {
       return sum + num.value;
     }, 0);
-
+    // ... and see if it's the biggest so far
     max = categorySum > max ? categorySum : max;
   }
   return max;
@@ -483,33 +499,29 @@ const drawBarChart = function (data, options, element) {
   // settings for each chart so that settings from one do not affect the other
   reset();
 
-  // Normalize the data
+  // Get the data into the format that can be used by the rest of the code
   data = normalize(data);
 
-  // Determine scale
-  const max = getMaxFor(data);
-  const tickInterval = bestTick(max, 8);
+  // Determine the scale of the chart
+  const max = getMaxFor(data); // Get largest of all bar values
+  const tickInterval = bestTick(max, 8); // =< 8 ticks looks best to my eyes
+  // Based on the largest value to plot, and the tick interval we calculated,
+  // what is the scale of the chart
   const scale = Math.ceil(max / tickInterval) * tickInterval;
 
   // Extract options
   let elementOptions = extractElementProperties(options);
   let elementProperties = Object.assign(elementDefaults, elementOptions);
-  let legendOptions = ["barColor", "legendPosition"].reduce(function (obj, property) {
-    obj[property] = options[property];
-    return obj;
-  }, {});
+  let legendOptions = extractLegendOptions(options);
 
+  // The total height of the passed in element needs to be the default 300px or
+  // the height passed in from the options, so the graph needs to be the total
+  // height of the chart element minus the height of the title
   let titleHeight = 0;
   if (options.title) {
-    let titleEl = $("<header class='title'><h1>" + options.title + "</h1></header>");
-    let titleSize = options.titleSize || "";
-    let titleColor = options.titleColor || "";
-    element.append(titleEl);
-    titleEl.css({ "font-size": titleSize, "color": titleColor });
-
-    let h1 = $("h1", titleEl);
-    titleHeight = h1.outerHeight(true);
-    titleHeight -= parseInt(h1.css("margin-top"));
+    element.append(drawTitle(options.title, options.titleSize, options.titleColor));
+    let header = $("header", element);
+    titleHeight = header.outerHeight(true) - parseInt(header.css("margin-top"));
   }
 
   let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
