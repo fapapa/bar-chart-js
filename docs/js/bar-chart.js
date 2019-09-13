@@ -1,5 +1,11 @@
-let elementDefaults, chartDefaults, graphDefaults, barProperties,
-    barSectionProperties, valueProperties, legendDefaults, displayLegend;
+let elementDefaults;
+let chartDefaults;
+let graphDefaults;
+let barProperties;
+let barSectionProperties;
+let valueProperties;
+let legendDefaults;
+let displayLegend;
 
 const reset = () => {
   elementDefaults = {
@@ -38,7 +44,7 @@ const reset = () => {
     "width": "100%",
     "box-sizing": "border-box",
     "background-color": "blue"
-  }
+  };
 
   valueProperties = {
     "padding": "5px",
@@ -123,6 +129,7 @@ let extractElementProperties = (options) => {
       delete options[prop];
       return elementOptions;
     }
+    return elementOptions;
   }, {});
 };
 
@@ -140,7 +147,7 @@ let drawBar = (barData, options) => {
     if (options.colors) {
       barSectionProperties["background-color"] = options.colors[idx];
     }
-    if (idx == Object.keys(barData).length - 1) {
+    if (idx === Object.keys(barData).length - 1) {
       barSectionProperties["border-top-left-radius"] = "4px";
       barSectionProperties["border-top-right-radius"] = "4px";
     } else {
@@ -182,9 +189,9 @@ let createYAxis = (yAxis) => {
     "writing-mode": "vertical-rl",
     "transform": "rotate(180deg)",
     "text-align": "center"
-  })
+  });
 
-  return title
+  return title;
 };
 
 let createLabels = (labels, barOptions) => {
@@ -323,19 +330,20 @@ const drawGraph = (data, scale, options, barOptions) => {
   // Create and add each data item as a bar on the graph
   let graph = Object.keys(data).reduce((el, category) => {
     el.append(drawBar(data[category], barOptions));
-    return el
-  }, $("<div class='graph'></div>"))
+    return el;
+  }, $("<div class='graph'></div>"));
 
   // Apply styling to the graph
   graph.css(Object.assign(graphDefaults, options));
-  if (options.showTicks) { graph.css("border-left", "1px solid black") }
+  if (options.showTicks) { graph.css("border-left", "1px solid black"); }
 
   return graph;
 };
 
 const drawYAxisElements = (yAxis, scale, tickInterval, options) => {
   let name;
-  let ticks, tickValues;
+  let ticks;
+  let tickValues;
   const intervalHeight = tickInterval / scale * 100;
 
   if (yAxis) {
@@ -343,8 +351,8 @@ const drawYAxisElements = (yAxis, scale, tickInterval, options) => {
     name = createYAxis(yAxis);
   }
 
-  options = Object.assign({showTicks: false}, options)
-  if (options.showTicks) {
+  defaultsAndOptions = Object.assign({showTicks: false}, options);
+  if (defaultsAndOptions.showTicks) {
     ticks = generateTicks(intervalHeight, scale, tickInterval);
     tickValues = generateTickValues(intervalHeight, scale, tickInterval);
   } else {
@@ -374,7 +382,8 @@ const drawXAxisElements = (xAxis, labels, barOptions) => {
 const drawChart = (height, data, scale, tickInterval, options) => {
   let chart = $("<article class='chart'></article>");
   let barOptions = extractBarOptions(options);
-  let xAxis, yAxis;
+  let xAxis;
+  let yAxis;
   xAxis = extractXAxis(options);
   yAxis = extractYAxis(options);
 
@@ -387,7 +396,7 @@ const drawChart = (height, data, scale, tickInterval, options) => {
 };
 
 const drawLegend = (data, legendOptions) => {
-  let legendEl = $("<aside class='legend'></aside>")
+  let legendEl = $("<aside class='legend'></aside>");
   let legendData = {};
 
   for (let xCat in data) {
@@ -408,7 +417,7 @@ const drawLegend = (data, legendOptions) => {
       "background-color": legendData[item]
     });
     legendItem.append(swatch);
-    let label = $("<div class='label'>" + item + "</div>")
+    let label = $("<div class='label'>" + item + "</div>");
     label.css({
       "padding-left": "1.5em",
       "font-size": "0.8em"
@@ -438,15 +447,17 @@ const drawTitle = (title, fontSize, color) => {
 };
 
 const normalizeXCategory = (data) => {
+  let objData;
+
   // 1. Turn a single number value into an array
   if (typeof data === 'number') {
-    data = [ data ];
+    objData = [ data ];
   }
 
   // 2. Turn an array into an object with the indexes as the property names
-  if (Array.isArray(data)) {
+  if (Array.isArray(objData)) {
     // [ 1, 2, 3 ] => { 0: 1, 1: 2, 2: 3 }
-    data = data.reduce((obj, value, idx) => {
+    objData = objData.reduce((obj, value, idx) => {
       obj[idx] = value;
       return obj;
     }, {});
@@ -455,17 +466,18 @@ const normalizeXCategory = (data) => {
 
   // 3. Turn the value of each category into an object with a value property (we
   // will later add a height property alongside the value property)
-  for (let category in data) {
-    data[category] = { value: data[category] };
+  for (let category in objData) {
+    objData[category] = { value: objData[category] };
   }
 
-  return data;
+  return objData;
 };
 
 const normalize = (data) => {
+  let objData;
   // Turn array into an object with categories as properties
   if (Array.isArray(data)) {
-    data = data.reduce((obj, value, idx) => {
+    objData = data.reduce((obj, value, idx) => {
       obj[idx] = value;
       return obj;
     }, {});
@@ -474,10 +486,10 @@ const normalize = (data) => {
   // Ensure each category value is represented as an object, even if it only
   // contains a single value
   for (let category in data) {
-    data[category] = normalizeXCategory(data[category]);
+    objData[category] = normalizeXCategory(objData[category]);
   }
 
-  return data;
+  return objData;
 };
 
 const getMaxFor = (data) => {
@@ -500,11 +512,13 @@ const drawBarChart = (data, options, element) => {
   reset();
 
   // Get the data into the format that can be used by the rest of the code
-  data = normalize(data);
+  let normalizedData = normalize(data);
 
   // Determine the scale of the chart
-  const max = getMaxFor(data); // Get largest of all bar values
-  const tickInterval = bestTick(max, 8); // =< 8 ticks looks best to my eyes
+  // Get largest of all bar values
+  const max = getMaxFor(data);
+  // =< 8 ticks looks best to my eyes
+  const tickInterval = bestTick(max, 8);
   // Based on the largest value to plot, and the tick interval we calculated,
   // what is the scale of the chart
   const scale = Math.ceil(max / tickInterval) * tickInterval;
@@ -521,10 +535,10 @@ const drawBarChart = (data, options, element) => {
   if (options.title) {
     element.append(drawTitle(options.title, options.titleSize, options.titleColor));
     let header = $("header", element);
-    titleHeight = header.outerHeight(true) - parseInt(header.css("margin-top"));
+    titleHeight = header.outerHeight(true) - parseInt(header.css("margin-top"), 10);
   }
 
-  let chartHeight = parseInt(elementProperties.height) - titleHeight + "px";
+  let chartHeight = parseInt(elementProperties.height, 10) - titleHeight + "px";
   element.append(drawChart(chartHeight, data, scale, tickInterval, options));
 
   if (displayLegend) { element.append(drawLegend(data, legendOptions)); }
@@ -532,6 +546,6 @@ const drawBarChart = (data, options, element) => {
   // Apply some styling to the element that holds the graph
   element.css(elementProperties);
 
-  // Animate the bars
-  $(".bar").animate({height: "100%"}, 333 /* Third of a second */);
+  // Animate the bars over a third of a second
+  $(".bar").animate({height: "100%"}, 333);
 };
