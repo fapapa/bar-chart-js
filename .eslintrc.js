@@ -1,3 +1,4 @@
 module.exports = {
-    'extends': 'lighthouselabs',
+  'extends': 'lighthouselabs',
+  "parserOptions": { "ecmaVersion": 6 }
 };
