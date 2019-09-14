@@ -452,6 +452,8 @@ const normalizeXCategory = (data) => {
   // 1. Turn a single number value into an array
   if (typeof data === 'number') {
     objData = [ data ];
+  } else {
+    objData = data;
   }
 
   // 2. Turn an array into an object with the indexes as the property names
@@ -474,18 +476,20 @@ const normalizeXCategory = (data) => {
 };
 
 const normalize = (data) => {
-  let objData;
+  let objData = {};
   // Turn array into an object with categories as properties
   if (Array.isArray(data)) {
     objData = data.reduce((obj, value, idx) => {
       obj[idx] = value;
       return obj;
     }, {});
+  } else {
+    objData = data;
   }
 
   // Ensure each category value is represented as an object, even if it only
   // contains a single value
-  for (let category in data) {
+  for (let category in objData) {
     objData[category] = normalizeXCategory(objData[category]);
   }
 
@@ -516,7 +520,7 @@ const drawBarChart = (data, options, element) => {
 
   // Determine the scale of the chart
   // Get largest of all bar values
-  const max = getMaxFor(data);
+  const max = getMaxFor(normalizedData);
   // =< 8 ticks looks best to my eyes
   const tickInterval = bestTick(max, 8);
   // Based on the largest value to plot, and the tick interval we calculated,
@@ -539,7 +543,7 @@ const drawBarChart = (data, options, element) => {
   }
 
   let chartHeight = parseInt(elementProperties.height, 10) - titleHeight + "px";
-  element.append(drawChart(chartHeight, data, scale, tickInterval, options));
+  element.append(drawChart(chartHeight, normalizedData, scale, tickInterval, options));
 
   if (displayLegend) { element.append(drawLegend(data, legendOptions)); }
 
