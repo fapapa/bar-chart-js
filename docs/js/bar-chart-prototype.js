@@ -10,7 +10,7 @@ const ToChartData = (data) => {
     }, {});
   } else {
     values = Object.keys(data).reduce((obj, category) => {
-      obj[category] = ToChartData(data[category]);
+      obj[category] = { value: data[category], height: undefined };
       return obj;
     }, {});
   }
@@ -23,6 +23,39 @@ function ChartData(data) {
   this.raw = ToChartData(data);
   this.xCategories = Object.keys(this.raw);
 }
+
+ChartData.prototype.max = function () {
+  return this.xCategories.reduce(function (max, xCat) {
+    let categorySum = Object.values(this.raw[xCat]).reduce(function (sum, num) {
+      return sum + num.value;
+    }, 0);
+    return categorySum > max ? categorySum : max;
+  }, 0);
+};
+
+ChartData.prototype.tickInterval = function () {
+  let tick;
+
+  const minInterval = this.max() / this.maxTicks;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(minInterval)));
+  const residual = minInterval / magnitude;
+
+  if (residual > 5) {
+    tick = 10 * magnitude;
+  } else if (residual > 2) {
+    tick = 5 * magnitude;
+  } else if (residual > 1) {
+    tick = 2 * magnitude;
+  } else {
+    tick = magnitude;
+  }
+
+  return tick;
+};
+
+ChartData.prototype.scale = function () {
+  return Math.ceil(this.max() / this.tickInterval) * this.tickInterval;
+};
 
 function ChartSettings(options) {
   this.containerCss = {
@@ -127,8 +160,26 @@ BarChart.prototype.drawTitle = function () {
 BarChart.prototype.drawBar = function (barData) {
   let bar = Object.keys(barData).reduce((barEl, cat, idx) => {
     let barSection = $("<div class='bar-section'></div>");
-    let labelText = barData[cat].value.toLocaleString();
+    const labelText = barData[cat].value.toLocaleString();
     let label = $("<div class='value'>" + labelText + "</div>");
+
+    if (this.settings.bar.color) {
+      this.settings.barSectionCss["background-color"] = this.settings.bar.color[idx];
+    }
+
+    if (idx === Object.keys(barData).length - 1) {
+      this.settings.barSectionCss["border-top-left-radius"] = "4px";
+      this.settings.barSectionCss["border-top-right-radius"] = "4px";
+    } else {
+      delete this.settings.barSectionCss["border-top-left-radius"];
+      delete this.settings.barSectionCss["border-top-right-radius"];
+    }
+
+    barSection.css(Object.assign(this.settings.barSectionCss,
+                                 { height: barData[cat].height }));
+    label.css(this.settings.valueCss);
+    barSection.append(label);
+    barEl.append(barSection);
 
     return barEl;
   }, $("<div class='bar'></div>"));
@@ -137,7 +188,7 @@ BarChart.prototype.drawBar = function (barData) {
 BarChart.prototype.drawGraph = function () {
   for (let bar in this.data.raw) {
     for (let category in this.data.raw[bar]) {
-      let height = this.data.raw[bar][category].value / this.data.scale * 100;
+      let height = this.data.raw[bar][category].value / this.data.scale() * 100;
       this.data.raw[bar][category].height = height + "%";
     }
   }
